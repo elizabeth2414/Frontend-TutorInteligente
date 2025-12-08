@@ -5,9 +5,9 @@ import Logger from "../logs/logger";
 
 const AUTH_BASE = "/auth";
 
-// ==============================
+// =====================================
 // 1. REGISTRO
-// ==============================
+// =====================================
 export const registroUsuario = async (data) => {
   try {
     const res = await axiosClient.post(`${AUTH_BASE}/registro`, data);
@@ -19,9 +19,9 @@ export const registroUsuario = async (data) => {
   }
 };
 
-// ==============================
-// 2. LOGIN
-// ==============================
+// =====================================
+// 2. LOGIN (CORREGIDO)
+// =====================================
 export const login = async (email, password) => {
   try {
     const formData = new FormData();
@@ -32,11 +32,10 @@ export const login = async (email, password) => {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
-    // Guardamos token
+    // Guardamos token SOLO AQUÍ
     localStorage.setItem("token", res.data.access_token);
 
     Logger.api("POST /auth/login", res.data);
-
     return res.data;
   } catch (error) {
     Logger.error("Error en login", error);
@@ -44,18 +43,23 @@ export const login = async (email, password) => {
   }
 };
 
-// ==============================
-// 3. OBTENER USUARIO ACTUAL (AGREGADO ROLES)
-// ==============================
+// =====================================
+// 3. OBTENER USUARIO ACTUAL (CORREGIDO)
+// =====================================
 export const getUsuarioActual = async () => {
   try {
     const res = await axiosClient.get(`${AUTH_BASE}/me`);
     Logger.api("GET /auth/me", res.data);
 
-    // ➤ Guardar roles también en localStorage
-    if (res.data && res.data.roles) {
-      localStorage.setItem("roles", JSON.stringify(res.data.roles));
-    }
+    // Normalizar roles: puede venir roles[] o rol
+    const roles = Array.isArray(res.data.roles)
+      ? res.data.roles
+      : res.data.rol
+      ? [res.data.rol]
+      : [];
+
+    // Guardar en localStorage
+    localStorage.setItem("roles", JSON.stringify(roles));
 
     return res.data;
   } catch (error) {
@@ -64,9 +68,9 @@ export const getUsuarioActual = async () => {
   }
 };
 
-// ==============================
-// 4. CAMBIO DE PASSWORD
-// ==============================
+// =====================================
+// 4. CAMBIO DE CONTRASEÑA
+// =====================================
 export const cambiarPassword = async (data) => {
   try {
     const res = await axiosClient.post(`${AUTH_BASE}/cambio-password`, data);
@@ -78,14 +82,12 @@ export const cambiarPassword = async (data) => {
   }
 };
 
-// ==============================
+// =====================================
 // 5. RESET PASSWORD
-// ==============================
+// =====================================
 export const solicitarResetPassword = async (email) => {
   try {
-    const res = await axiosClient.post(`${AUTH_BASE}/reset-password`, {
-      email,
-    });
+    const res = await axiosClient.post(`${AUTH_BASE}/reset-password`, { email });
     Logger.api("POST /auth/reset-password", res.data);
     return res.data;
   } catch (error) {
@@ -94,18 +96,15 @@ export const solicitarResetPassword = async (email) => {
   }
 };
 
-// ==============================
-// 6. CONFIRM RESET PASSWORD
-// ==============================
+// =====================================
+// 6. CONFIRMAR RESET PASSWORD
+// =====================================
 export const confirmarResetPassword = async (token, nuevo_password) => {
   try {
-    const res = await axiosClient.post(
-      `${AUTH_BASE}/confirm-reset-password`,
-      {
-        token,
-        nuevo_password,
-      }
-    );
+    const res = await axiosClient.post(`${AUTH_BASE}/confirm-reset-password`, {
+      token,
+      nuevo_password,
+    });
     Logger.api("POST /auth/confirm-reset-password", res.data);
     return res.data;
   } catch (error) {
@@ -114,11 +113,11 @@ export const confirmarResetPassword = async (token, nuevo_password) => {
   }
 };
 
-// ==============================
+// =====================================
 // 7. LOGOUT
-// ==============================
+// =====================================
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("roles");
-  Logger.info("Usuario salió de la sesión");
+  Logger.info("Usuario cerró sesión");
 };

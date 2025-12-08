@@ -9,7 +9,6 @@ import {
 import { getUsuarioActual } from "../../services/authService";
 import Footer from "../../components/Footer";
 
-// Iconos
 import {
   MdPeople,
   MdLibraryBooks,
@@ -17,7 +16,6 @@ import {
   MdCheckCircle,
 } from "react-icons/md";
 
-// Recharts
 import {
   LineChart,
   Line,
@@ -55,10 +53,10 @@ export default function DashboardDocente() {
       const res3 = await getRendimientoCursos();
       const res4 = await getNiveles();
 
-      setResumen(res1);
-      setProgresoMensual(res2);
-      setRendimientoCursos(res3);
-      setNiveles(res4);
+      setResumen(res1 ?? {});
+      setProgresoMensual(res2 ?? []);
+      setRendimientoCursos(res3 ?? []);
+      setNiveles(res4 ?? []);
     } catch (error) {
       console.error("Error cargando dashboard:", error);
     } finally {
@@ -75,117 +73,139 @@ export default function DashboardDocente() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 p-6">
+    <div className="min-h-screen flex flex-col bg-gray-50 p-6">
 
-      {/* ============================
-          SALUDO PERSONALIZADO
-      ============================ */}
-      <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+      {/* ============================ SALUDO ============================ */}
+      <div className="bg-white p-7 rounded-2xl shadow-lg mb-6 border border-gray-200">
         <h1 className="text-3xl font-bold text-blue-700">
           ¡Bienvenido, {docente?.nombre} {docente?.apellido}! 👋
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 mt-1 text-lg">
           Aquí puedes revisar el avance y desempeño de tus estudiantes.
         </p>
       </div>
 
-      {/* ============================
-          TARJETAS PRINCIPALES
-      ============================ */}
+      {/* ============================ TARJETAS ============================ */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        
-        <div className="p-6 bg-white rounded-xl shadow flex items-center gap-4">
-          <MdPeople size={40} className="text-blue-600" />
-          <div>
-            <h3 className="text-lg font-semibold">Total Estudiantes</h3>
-            <p className="text-2xl font-bold">{resumen.total_estudiantes}</p>
-          </div>
-        </div>
 
-        <div className="p-6 bg-white rounded-xl shadow flex items-center gap-4">
-          <MdLibraryBooks size={40} className="text-purple-600" />
-          <div>
-            <h3 className="text-lg font-semibold">Lecturas Realizadas</h3>
-            <p className="text-2xl font-bold">{resumen.total_lecturas}</p>
-          </div>
-        </div>
+        {/* Tarjeta */}
+        <Card
+          color="bg-blue-100"
+          icon={<MdPeople size={32} className="text-blue-700" />}
+          titulo="Total Estudiantes"
+          valor={resumen.total_estudiantes}
+        />
 
-        <div className="p-6 bg-white rounded-xl shadow flex items-center gap-4">
-          <MdCheckCircle size={40} className="text-green-600" />
-          <div>
-            <h3 className="text-lg font-semibold">Actividades Completadas</h3>
-            <p className="text-2xl font-bold">{resumen.actividades_completadas}</p>
-          </div>
-        </div>
+        <Card
+          color="bg-purple-100"
+          icon={<MdLibraryBooks size={32} className="text-purple-700" />}
+          titulo="Lecturas Realizadas"
+          valor={resumen.total_lecturas}
+        />
 
-        <div className="p-6 bg-white rounded-xl shadow flex items-center gap-4">
-          <MdEmojiEvents size={40} className="text-yellow-500" />
-          <div>
-            <h3 className="text-lg font-semibold">Promedio General</h3>
-            <p className="text-2xl font-bold">{resumen.promedio_general}%</p>
-          </div>
-        </div>
+        <Card
+          color="bg-green-100"
+          icon={<MdCheckCircle size={32} className="text-green-700" />}
+          titulo="Actividades Completadas"
+          valor={resumen.actividades_completadas}
+        />
+
+        <Card
+          color="bg-yellow-100"
+          icon={<MdEmojiEvents size={32} className="text-yellow-600" />}
+          titulo="Promedio General"
+          valor={`${resumen.promedio_general}%`}
+        />
 
       </div>
 
-      {/* ============================
-          PROGRESO MENSUAL - LINE CHART
-      ============================ */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-6">
-        <h2 className="text-xl font-bold text-blue-700 mb-4">
-          Progreso Mensual 📈
-        </h2>
+      {/* ============================ PROGRESO MENSUAL ============================ */}
+      <SectionCard titulo="Progreso Mensual 📈" color="text-blue-700">
+        {progresoMensual.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={progresoMensual}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+              <XAxis dataKey="mes" />
+              <YAxis />
+              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
+              <Line type="monotone" dataKey="progreso" stroke="#2563eb" strokeWidth={3} dot />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <EmptyMessage />
+        )}
+      </SectionCard>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={progresoMensual}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="mes" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="progreso" stroke="#2563eb" strokeWidth={3} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {/* ============================ RENDIMIENTO CURSOS ============================ */}
+      <SectionCard titulo="Rendimiento por Curso 🏫" color="text-purple-700">
+        {rendimientoCursos.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={rendimientoCursos}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+              <XAxis dataKey="curso" />
+              <YAxis />
+              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
+              <Bar dataKey="promedio" fill="#9333ea" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <EmptyMessage />
+        )}
+      </SectionCard>
 
-      {/* ============================
-          RENDIMIENTO POR CURSO - BAR CHART
-      ============================ */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-6">
-        <h2 className="text-xl font-bold text-purple-700 mb-4">
-          Rendimiento por Curso 🏫
-        </h2>
+      {/* ============================ DISTRIBUCIÓN NIVELES ============================ */}
+      <SectionCard titulo="Distribución por Nivel 📚" color="text-green-700">
+        {niveles.length > 0 ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={niveles}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+              <XAxis dataKey="nivel" />
+              <YAxis />
+              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
+              <Bar dataKey="cantidad" fill="#16a34a" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <EmptyMessage />
+        )}
+      </SectionCard>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={rendimientoCursos}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="curso" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="promedio" fill="#9333ea" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* ============================
-          DISTRIBUCIÓN POR NIVELES
-      ============================ */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-10">
-        <h2 className="text-xl font-bold text-green-700 mb-4">
-          Distribución por Nivel de Dificultad 📚
-        </h2>
-
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={niveles}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="nivel" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="cantidad" fill="#16a34a" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      <Footer />
     </div>
   );
+}
+
+/* ----------------------------------------
+    COMPONENTE CARD MINI
+---------------------------------------- */
+function Card({ color, icon, titulo, valor }) {
+  return (
+    <div className="bg-white p-5 shadow-md rounded-2xl border border-gray-200 flex gap-4 items-center hover:shadow-lg transition">
+      <div className={`p-3 rounded-full ${color}`}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-gray-600 text-sm">{titulo}</p>
+        <p className="text-3xl font-bold text-gray-900">{valor}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------------------
+    COMPONENTE TARJETA SECCIÓN
+---------------------------------------- */
+function SectionCard({ titulo, color, children }) {
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6">
+      <h2 className={`text-xl font-bold mb-4 ${color}`}>{titulo}</h2>
+      {children}
+    </div>
+  );
+}
+
+/* ----------------------------------------
+    COMPONENTE MENSAJE VACÍO
+---------------------------------------- */
+function EmptyMessage() {
+  return <p className="text-gray-500">No hay datos para mostrar.</p>;
 }

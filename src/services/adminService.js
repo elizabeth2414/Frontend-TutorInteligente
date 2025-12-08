@@ -1,40 +1,63 @@
-// src/services/adminService.js
 import axiosClient from "../api/axiosClient";
 import Logger from "../logs/logger";
 
-const BASE_URL = "/admin";
+const BASE_URL = "/admin/docentes";
 
+// ==============================
 // LISTAR DOCENTES
+// ==============================
 export const listarDocentesAdmin = async () => {
-  const res = await axiosClient.get(`${BASE_URL}/docentes`);
-  Logger.api("GET /admin/docentes", res.data);
-  return res.data;
+  try {
+    const { data } = await axiosClient.get(BASE_URL);
+    Logger.info("Docentes listados correctamente", data);
+    return data;
+  } catch (error) {
+    Logger.error("❌ Error listando docentes:", error);
+    throw error;
+  }
 };
 
-// CREAR DOCENTE (admin)
-export const crearDocenteAdmin = async (data) => {
-  const res = await axiosClient.post(`${BASE_URL}/docentes`, data);
-  Logger.api("POST /admin/docentes", res.data);
-  return res.data;
+
+// ==============================
+// CREAR DOCENTE (ADMIN)
+// ==============================
+export const crearDocenteAdmin = async (docenteData) => {
+  try {
+    Logger.info("Enviando datos...", docenteData);
+    const { data } = await axiosClient.post(BASE_URL, docenteData);
+    Logger.info("✔ Docente creado correctamente");
+    return data;
+  } catch (error) {
+    Logger.error("❌ Error creando docente:", error.response?.data || error);
+    throw error;
+  }
 };
 
-// OBTENER DOCENTE
-export const obtenerDocenteAdmin = async (id) => {
-  const res = await axiosClient.get(`${BASE_URL}/docentes/${id}`);
-  Logger.api(`GET /admin/docentes/${id}`, res.data);
-  return res.data;
-};
 
+// ==============================
 // ACTUALIZAR DOCENTE
-export const actualizarDocenteAdmin = async (id, data) => {
-  const res = await axiosClient.put(`${BASE_URL}/docentes/${id}`, data);
-  Logger.api(`PUT /admin/docentes/${id}`, res.data);
-  return res.data;
+// ==============================
+export const actualizarDocenteAdmin = async (id, docenteData) => {
+  try {
+    const { data } = await axiosClient.put(`${BASE_URL}/${id}`, docenteData);
+    Logger.info(`✔ Docente ${id} actualizado correctamente`);
+    return data;
+  } catch (error) {
+    Logger.error(`❌ Error actualizando docente ${id}:`, error);
+    throw error;
+  }
 };
 
-// DESACTIVAR DOCENTE
-export const desactivarDocenteAdmin = async (id) => {
-  const res = await axiosClient.delete(`${BASE_URL}/docentes/${id}`);
-  Logger.api(`DELETE /admin/docentes/${id}`, res.data);
-  return res.data;
+
+// ==============================
+// ELIMINAR DOCENTE
+// ==============================
+export const eliminarDocenteAdmin = async (id) => {
+  try {
+    await axiosClient.delete(`${BASE_URL}/${id}`);
+    Logger.warn(`⚠ Docente ${id} eliminado`);
+  } catch (error) {
+    Logger.error(`❌ Error eliminando docente ${id}:`, error);
+    throw error;
+  }
 };

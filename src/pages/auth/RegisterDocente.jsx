@@ -31,9 +31,7 @@ const RegisterDocente = () => {
     try {
       const response = await fetch("http://localhost:8000/api/auth/registro", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
           password: form.password,
@@ -42,14 +40,11 @@ const RegisterDocente = () => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error al registrarse");
-      }
+      if (!response.ok) throw new Error("Error al registrarse");
 
       navigate("/login");
     } catch (error) {
       setErrorMsg("No se pudo completar el registro.");
-      console.error(error);
     }
 
     setLoading(false);
@@ -57,40 +52,41 @@ const RegisterDocente = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 flex flex-col">
-
-      {/* NAVBAR */}
       <Navbar />
 
-      {/* CONTENIDO */}
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="bg-white/80 backdrop-blur-lg p-10 rounded-3xl shadow-xl max-w-lg w-full">
+      {/* CONTENIDO SIEMPRE DEBAJO DEL NAVBAR */}
+      <main className="pt-28 flex-1 flex items-center justify-center p-6">
+        <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl max-w-3xl w-full border border-white/40 relative overflow-hidden">
 
-          {/* Imagen */}
-          <div className="flex justify-center mb-4">
+          {/* BURBUJAS DECORATIVAS */}
+          <div className="absolute -top-6 -left-6 w-20 h-20 bg-purple-300/40 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-300/40 rounded-full blur-xl animate-pulse"></div>
+
+          {/* IMAGEN */}
+          <div className="flex justify-center mb-4 relative z-10">
             <img
               src="https://cdn3d.iconscout.com/3d/premium/thumb/teacher-reading-book-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--docente-educacion-pack-people-illustrations-6512345.png"
               alt="Docente"
-              className="w-32 drop-shadow-lg"
+              className="w-36 drop-shadow-2xl animate-bounce-slow"
             />
           </div>
 
-          <h2 className="text-3xl font-bold text-center text-purple-700 mb-2">
+          <h2 className="text-4xl font-extrabold text-center text-purple-700 drop-shadow-md relative z-10">
             Registro de Docente 👩‍🏫✨
           </h2>
 
-          <p className="text-center text-gray-700 mb-6">
+          <p className="text-center text-gray-700 mb-6 relative z-10">
             Crea tu cuenta para gestionar estudiantes y actividades educativas.
           </p>
 
-          {/* Error */}
           {errorMsg && (
-            <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg mb-4 text-center">
+            <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg mb-4 text-center shadow-md animate-shake relative z-10">
               {errorMsg}
             </div>
           )}
 
-          {/* FORMULARIO */}
-          <form onSubmit={handleRegister} className="space-y-5">
+          {/* FORMULARIO EN 2 COLUMNAS */}
+          <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
 
             {/* Nombre */}
             <div>
@@ -102,7 +98,8 @@ const RegisterDocente = () => {
                 value={form.nombre}
                 onChange={handleChange}
                 placeholder="Ingresa tu nombre"
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-400 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 
+                           focus:ring-4 focus:ring-purple-400/50 outline-none shadow-inner"
               />
             </div>
 
@@ -116,7 +113,8 @@ const RegisterDocente = () => {
                 value={form.apellido}
                 onChange={handleChange}
                 placeholder="Ingresa tu apellido"
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-purple-400 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
+                           focus:ring-4 focus:ring-purple-400/50 outline-none shadow-inner"
               />
             </div>
 
@@ -130,8 +128,8 @@ const RegisterDocente = () => {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="correo@ejemplo.com"
-                autoComplete="off"
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-400 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 
+                           focus:ring-4 focus:ring-blue-400/50 outline-none shadow-inner"
               />
             </div>
 
@@ -146,7 +144,8 @@ const RegisterDocente = () => {
                 onChange={handleChange}
                 placeholder="********"
                 minLength="6"
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-400 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 
+                           focus:ring-4 focus:ring-blue-400/50 outline-none shadow-inner"
               />
             </div>
 
@@ -158,26 +157,28 @@ const RegisterDocente = () => {
                 name="especialidad"
                 value={form.especialidad}
                 onChange={handleChange}
-                placeholder="Lengua, Matemáticas, Ciencias..."
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-green-300 outline-none"
+                placeholder="Lengua, Matemáticas..."
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
+                           focus:ring-4 focus:ring-green-400/50 outline-none shadow-inner"
               />
             </div>
 
             {/* Grado Académico */}
             <div>
-              <label className="text-gray-700 font-semibold">Grado Académico</label>
+              <label className="text-gray-700 font-semibold">Grado académico</label>
               <input
                 type="text"
                 name="grado_academico"
                 value={form.grado_academico}
                 onChange={handleChange}
                 placeholder="Lic., Mgs., PhD..."
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-green-300 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
+                           focus:ring-4 focus:ring-green-400/50 outline-none shadow-inner"
               />
             </div>
 
-            {/* Institución */}
-            <div>
+            {/* Institución (OCUPA DOS COLUMNAS) */}
+            <div className="md:col-span-2">
               <label className="text-gray-700 font-semibold">Institución</label>
               <input
                 type="text"
@@ -185,37 +186,38 @@ const RegisterDocente = () => {
                 value={form.institucion}
                 onChange={handleChange}
                 placeholder="Unidad Educativa..."
-                className="w-full mt-1 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-green-300 outline-none"
+                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
+                           focus:ring-4 focus:ring-green-400/50 outline-none shadow-inner"
               />
             </div>
 
-            {/* BOTÓN */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-3 rounded-xl text-white font-bold text-lg transition ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-purple-600 hover:bg-purple-700 hover:scale-105 shadow-lg"
-              }`}
-            >
-              {loading ? "Registrando..." : "Crear Cuenta"}
-            </button>
+            {/* Botón OCUPA DOS COLUMNAS */}
+            <div className="md:col-span-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 rounded-xl text-white font-bold text-lg transition 
+                  ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-purple-600 hover:bg-purple-700 hover:scale-105 shadow-xl"
+                  }`}
+              >
+                {loading ? "Registrando..." : "Crear Cuenta"}
+              </button>
+            </div>
           </form>
 
-          <p className="mt-6 text-center text-gray-700">
+          {/* Enlace login */}
+          <p className="mt-6 text-center text-gray-700 relative z-10">
             ¿Ya tienes una cuenta?
-            <Link
-              to="/login"
-              className="text-blue-600 font-bold hover:underline ml-1"
-            >
-              Inicia Sesión aquí
+            <Link to="/login" className="text-blue-600 font-bold hover:underline ml-1">
+              Inicia sesión aquí
             </Link>
           </p>
         </div>
-      </div>
+      </main>
 
-      {/* FOOTER */}
       <Footer />
     </div>
   );

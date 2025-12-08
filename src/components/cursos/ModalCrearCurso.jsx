@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MdClose } from "react-icons/md";
 import { crearCurso } from "../../services/cursosService";
 
 export default function ModalCrearCurso({ onClose, onCreated }) {
@@ -6,7 +7,14 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
   const [nivel, setNivel] = useState(1);
   const [descripcion, setDescripcion] = useState("");
 
+  const [error, setError] = useState("");
+
   const crear = async () => {
+    if (!nombre.trim()) {
+      setError("El nombre del curso es obligatorio.");
+      return;
+    }
+
     try {
       await crearCurso({
         nombre,
@@ -14,35 +22,45 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
         descripcion,
       });
 
-      onCreated();   // Recargar cursos
-      onClose();     // Cerrar modal
+      onCreated();
+      onClose();
     } catch (error) {
       console.error("Error creando curso:", error);
-      alert("Hubo un error al crear el curso");
+      setError("Hubo un error al crear el curso.");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 w-96 rounded-2xl shadow-xl animate-fade">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-fade">
+      <div className="bg-white p-6 w-96 rounded-2xl shadow-xl relative">
+
+        {/* Botón cerrar */}
+        <button
+          className="absolute right-3 top-3 text-gray-600 hover:text-gray-900"
+          onClick={onClose}
+        >
+          <MdClose size={24} />
+        </button>
 
         <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">
           Nuevo Curso
         </h2>
 
+        {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+
         {/* Nombre */}
-        <label className="block mb-2 font-medium">Nombre del curso</label>
+        <label className="block text-sm font-semibold mb-1">Nombre *</label>
         <input
-          className="w-full border p-2 rounded-lg mb-4 focus:outline-blue-600"
+          className="w-full px-3 py-2 border rounded-lg mb-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          placeholder="Ej: Lectura Nivel 1"
+          placeholder="Ej: Lectura Inicial"
         />
 
         {/* Nivel */}
-        <label className="block mb-2 font-medium">Nivel (1 - 6)</label>
+        <label className="block text-sm font-semibold mb-1">Nivel (1 - 6)</label>
         <select
-          className="w-full border p-2 rounded-lg mb-4"
+          className="w-full px-3 py-2 border rounded-lg mb-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           value={nivel}
           onChange={(e) => setNivel(e.target.value)}
         >
@@ -52,9 +70,9 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
         </select>
 
         {/* Descripción */}
-        <label className="block mb-2 font-medium">Descripción</label>
+        <label className="block text-sm font-semibold mb-1">Descripción</label>
         <textarea
-          className="w-full border p-2 rounded-lg mb-4"
+          className="w-full px-3 py-2 border rounded-lg mb-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           rows="3"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
@@ -72,12 +90,11 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
 
           <button
             onClick={crear}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
           >
             Crear
           </button>
         </div>
-
       </div>
     </div>
   );

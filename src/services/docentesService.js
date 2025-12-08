@@ -3,104 +3,102 @@
 import axiosClient from "../api/axiosClient";
 import Logger from "../logs/logger";
 
-const BASE_URL = "/docentes";
-
+const BASE = "/docentes";
 
 // =======================================================
-// 1. CREAR DOCENTE
+// 1. CURSOS DEL DOCENTE
 // =======================================================
-export const crearDocente = async (data) => {
+export const getCursosDocente = async () => {
   try {
-    const res = await axiosClient.post(BASE_URL, data);
-    Logger.api("POST /docentes", res.data);
+    const res = await axiosClient.get(`${BASE}/cursos`);
+    Logger.api("GET /docentes/cursos", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error creando docente", error);
+    Logger.error("Error obteniendo cursos del docente", error);
     throw error;
   }
 };
 
-
 // =======================================================
-// 2. LISTAR DOCENTES
+// 2. LISTAR ESTUDIANTES DEL DOCENTE
 // =======================================================
-export const listarDocentes = async (params = {}) => {
+export const getEstudiantesDocente = async () => {
   try {
-    const res = await axiosClient.get(BASE_URL, { params });
-    Logger.api("GET /docentes", res.data);
+    const res = await axiosClient.get(`${BASE}/estudiantes`);
+    Logger.api("GET /docentes/estudiantes", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error listando docentes", error);
+    Logger.error("Error listando estudiantes del docente", error);
     throw error;
   }
 };
 
-
 // =======================================================
-// 3. OBTENER DOCENTE POR ID
+// 3. CREAR ESTUDIANTE PARA EL DOCENTE
 // =======================================================
-export const obtenerDocente = async (docente_id) => {
+export const crearEstudianteDocente = async (payload) => {
   try {
-    const res = await axiosClient.get(`${BASE_URL}/${docente_id}`);
-    Logger.api(`GET /docentes/${docente_id}`, res.data);
+    const res = await axiosClient.post(`${BASE}/estudiantes`, payload);
+    Logger.api("POST /docentes/estudiantes", res.data);
     return res.data;
   } catch (error) {
-    Logger.error(`Error obteniendo docente ${docente_id}`, error);
+    Logger.error("Error creando estudiante", error);
     throw error;
   }
 };
 
-
 // =======================================================
-// 4. ACTUALIZAR DOCENTE
+// 4. DASHBOARD RESUMEN
 // =======================================================
-export const actualizarDocente = async (docente_id, data) => {
-  try {
-    const res = await axiosClient.put(`${BASE_URL}/${docente_id}`, data);
-    Logger.api(`PUT /docentes/${docente_id}`, res.data);
-    return res.data;
-  } catch (error) {
-    Logger.error(`Error actualizando docente ${docente_id}`, error);
-    throw error;
-  }
-};
-
-
-// =======================================================
-// 5. ELIMINAR DOCENTE
-// =======================================================
-export const eliminarDocente = async (docente_id) => {
-  try {
-    const res = await axiosClient.delete(`${BASE_URL}/${docente_id}`);
-    Logger.api(`DELETE /docentes/${docente_id}`, res.data);
-    return res.data;
-  } catch (error) {
-    Logger.error(`Error eliminando docente ${docente_id}`, error);
-    throw error;
-  }
-};
-
-
-// =======================================================
-// DASHBOARD — YA CONECTADOS AL BACKEND REAL
-// =======================================================
-
 export const getResumenDashboard = async () => {
-  const res = await axiosClient.get("/docentes/dashboard/resumen");
-  return res.data;
+  try {
+    const res = await axiosClient.get(`${BASE}/dashboard/resumen`);
+    Logger.api("GET /docentes/dashboard/resumen", res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error obteniendo resumen dashboard", error);
+    throw error;
+  }
 };
 
+// =======================================================
+// 5. DASHBOARD PROGRESO MENSUAL
+// =======================================================
 export const getProgresoMensual = async () => {
-  const res = await axiosClient.get("/docentes/dashboard/progreso-mensual");
-  return res.data;
+  try {
+    const res = await axiosClient.get(`${BASE}/dashboard/progreso-mensual`);
+    Logger.api("GET /docentes/dashboard/progreso-mensual", res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error obteniendo progreso mensual", error);
+    throw error;
+  }
 };
 
+// =======================================================
+// 6. DASHBOARD RENDIMIENTO CURSOS
+// =======================================================
 export const getRendimientoCursos = async () => {
-  const res = await axiosClient.get("/docentes/dashboard/rendimiento-cursos");
-  return res.data;
+  try {
+    const res = await axiosClient.get(`${BASE}/dashboard/rendimiento-cursos`);
+    Logger.api("GET /docentes/dashboard/rendimiento-cursos", res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error obteniendo rendimiento cursos", error);
+    throw error;
+  }
 };
 
+// =======================================================
+// 7. NIVELES DE ESTUDIANTES
+// =======================================================
 export const getNiveles = async () => {
-  const res = await axiosClient.get("/docentes/dashboard/niveles");
-  return res.data;
+  try {
+    const res = await axiosClient.get(`${BASE}/dashboard/niveles`);
+    Logger.api("GET /docentes/dashboard/niveles", res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error obteniendo niveles", error);
+    throw error;
+  }
 };
