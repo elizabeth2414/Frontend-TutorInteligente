@@ -68,7 +68,7 @@ export default function Navbar() {
         </button>
 
         <button
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/register-padre")}
           className="px-5 py-2 rounded-lg bg-green-500 text-white shadow-md hover:bg-green-600 transition hover:scale-105"
         >
           Registrarse

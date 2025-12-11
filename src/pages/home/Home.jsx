@@ -57,7 +57,7 @@ export default function Home() {
                 </button>
 
                 <button
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate("/register-padre")}
                   className="px-7 py-3 rounded-xl bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 hover:scale-105 transition"
                 >
                   📝 Registrarse

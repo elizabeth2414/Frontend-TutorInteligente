@@ -1,13 +1,11 @@
-// src/services/padresService.js
-
 import axiosClient from "../api/axiosClient";
 import Logger from "../logs/logger";
 
 const BASE_URL = "/padres";
 
-// ============================================================
-// 👨‍👧 CRUD de Padres
-// ============================================================
+// ===============================
+// CRUD PADRES
+// ===============================
 
 export const crearPadre = async (data) => {
   try {
@@ -15,7 +13,7 @@ export const crearPadre = async (data) => {
     Logger.api("POST /padres", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al crear padre", error);
+    Logger.error("❌ Error al crear padre", error);
     throw error;
   }
 };
@@ -28,7 +26,7 @@ export const listarPadres = async (skip = 0, limit = 100) => {
     Logger.api("GET /padres", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al listar padres", error);
+    Logger.error("❌ Error al listar padres", error);
     throw error;
   }
 };
@@ -39,7 +37,7 @@ export const obtenerPadre = async (padreId) => {
     Logger.api(`GET /padres/${padreId}`, res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al obtener padre", error);
+    Logger.error("❌ Error al obtener padre", error);
     throw error;
   }
 };
@@ -50,7 +48,7 @@ export const actualizarPadre = async (padreId, data) => {
     Logger.api(`PUT /padres/${padreId}`, res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al actualizar padre", error);
+    Logger.error("❌ Error al actualizar padre", error);
     throw error;
   }
 };
@@ -61,33 +59,44 @@ export const eliminarPadre = async (padreId) => {
     Logger.api(`DELETE /padres/${padreId}`, res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al eliminar padre", error);
+    Logger.error("❌ Error al eliminar padre", error);
     throw error;
   }
 };
 
-// ============================================================
-// 👨‍👧🔑 Accesos Padre → Estudiante
-// ============================================================
+// ===============================
+// ACCESO PADRE → ESTUDIANTE
+// ===============================
 
-export const crearAccesoPadre = async (data) => {
+export const vincularHijo = async (data) => {
   try {
-    const res = await axiosClient.post(`${BASE_URL}/acceso`, data);
-    Logger.api("POST /padres/acceso", res.data);
+    const res = await axiosClient.post(`${BASE_URL}/vincular-hijo`, data);
+    Logger.api("POST /padres/vincular-hijo", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al crear acceso padre", error);
+    Logger.error("❌ Error al vincular hijo", error);
     throw error;
   }
 };
 
-export const listarAccesosPorEstudiante = async (estudianteId) => {
+export const getHijosPadre = async () => {
   try {
-    const res = await axiosClient.get(`${BASE_URL}/acceso/${estudianteId}`);
-    Logger.api(`GET /padres/acceso/${estudianteId}`, res.data);
+    const res = await axiosClient.get(`${BASE_URL}/mis-hijos`);
+    Logger.api("GET /padres/mis-hijos", res.data);
     return res.data;
   } catch (error) {
-    Logger.error("Error al listar accesos de estudiante", error);
+    Logger.error("❌ Error obteniendo hijos del padre", error);
+    throw error;
+  }
+};
+
+export const getLecturasHijo = async (hijoId) => {
+  try {
+    const res = await axiosClient.get(`${BASE_URL}/hijos/${hijoId}/lecturas`);
+    Logger.api(`GET /padres/hijos/${hijoId}/lecturas`, res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("❌ Error obteniendo lecturas del hijo", error);
     throw error;
   }
 };

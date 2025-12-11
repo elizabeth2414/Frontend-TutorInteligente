@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Home from "./pages/home/Home.jsx";
 import Login from "./pages/auth/Login.jsx";
-import RegisterDocente from "./pages/auth/RegisterDocente.jsx";
+import RegisterPadre from "./pages/auth/RegisterPadre.jsx";
 import SobreNosotros from "./pages/info/SobreNosotros.jsx";
 import Mision from "./pages/info/Mision.jsx";
 import Objetivo from "./pages/info/Objetivo.jsx";
@@ -18,6 +18,12 @@ import LecturasDocente from "./pages/docente/LecturasDocente.jsx";
 import ActividadesGeneradas from "./pages/docente/ActividadesGeneradas.jsx";
 import VerActividadIA from "./pages/docente/VerActividadIA.jsx";
 
+import MenuPadre from "./pages/padre/MenuPadre.jsx";
+import VincularHijo from "./pages/padre/VincularHijo.jsx";
+import MisHijos from "./pages/padre/MisHijos.jsx";
+import VerLecturasHijo from "./pages/padre/VerLecturasHijo.jsx";
+import LeerLectura from "./pages/padre/LeerLectura.jsx";
+
 // ADMIN
 import MenuAdmin from "./pages/admin/MenuAdmin.jsx";
 import DashboardAdmin from "./pages/admin/DashboardAdmin.jsx";
@@ -31,7 +37,7 @@ function App() {
       {/* ===================== PÚBLICAS ===================== */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<RegisterDocente />} />
+      <Route path="/register-padre" element={<RegisterPadre />} />
       <Route path="/sobre-nosotros" element={<SobreNosotros />} />
       <Route path="/mision" element={<Mision />} />
       <Route path="/objetivo" element={<Objetivo />} />
@@ -61,6 +67,14 @@ function App() {
         />
       </Route>
 
+      <Route path="/padre/menu" element={<MenuPadre />}>
+      <Route path="hijos/vincular" element={<VincularHijo />} />
+      <Route path="hijos" element={<MisHijos />} />
+      <Route path="/padre/menu/hijos/:hijoId/lecturas" element={<VerLecturasHijo />} />
+      <Route path="/padre/menu/hijos/:hijoId/lecturas/:lecturaId" element={<LeerLectura />} />
+
+      
+      </Route>
 
       {/* ===================== PRIVADAS - ADMIN ===================== */}
       <Route path="/admin/menu" element={<MenuAdmin />}>

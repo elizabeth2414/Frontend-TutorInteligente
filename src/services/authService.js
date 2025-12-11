@@ -121,3 +121,14 @@ export const logout = () => {
   localStorage.removeItem("roles");
   Logger.info("Usuario cerró sesión");
 };
+
+export const registrarPadre = async (data) => {
+  try {
+    const res = await axiosClient.post(`/auth/registro-padre`, data);
+    Logger.api("POST /auth/registro-padre", res.data);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error al registrar padre", error);
+    throw error;
+  }
+};

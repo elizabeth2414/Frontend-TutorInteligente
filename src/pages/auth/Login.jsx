@@ -46,7 +46,7 @@ export default function Login() {
       // 4. Redirección por rol
       if (roles.includes("admin")) navigate("/admin/menu");
       else if (roles.includes("docente")) navigate("/docente/menu");
-      else if (roles.includes("estudiante")) navigate("/estudiante/menu");
+      else if (roles.includes("padre")) navigate("/padre/menu");
       else navigate("/");
 
     } catch (error) {
@@ -124,7 +124,7 @@ export default function Login() {
             <p className="text-gray-700">
               ¿No tienes una cuenta?
               <span
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/register-padre")}
                 className="text-purple-600 font-bold hover:underline cursor-pointer ml-1"
               >
                 Regístrate aquí
