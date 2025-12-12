@@ -110,12 +110,6 @@ export default function DashboardDocente() {
           valor={resumen.actividades_completadas}
         />
 
-        <Card
-          color="bg-yellow-100"
-          icon={<MdEmojiEvents size={32} className="text-yellow-600" />}
-          titulo="Promedio General"
-          valor={`${resumen.promedio_general}%`}
-        />
 
       </div>
 

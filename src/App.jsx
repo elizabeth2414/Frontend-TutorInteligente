@@ -68,6 +68,7 @@ function App() {
       </Route>
 
       <Route path="/padre/menu" element={<MenuPadre />}>
+
       <Route path="hijos/vincular" element={<VincularHijo />} />
       <Route path="hijos" element={<MisHijos />} />
       <Route path="/padre/menu/hijos/:hijoId/lecturas" element={<VerLecturasHijo />} />
@@ -80,6 +81,7 @@ function App() {
       <Route path="/admin/menu" element={<MenuAdmin />}>
         <Route index element={<DashboardAdmin />} />
 
+        <Route path="dashboard" element={<DashboardAdmin />} />
         <Route path="docentes" element={<DocentesGestion />} />
         <Route path="estudiantes" element={<EstudiantesAdminGestion />} />
       </Route>

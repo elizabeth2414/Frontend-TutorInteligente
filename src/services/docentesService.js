@@ -46,6 +46,24 @@ export const crearEstudianteDocente = async (payload) => {
     throw error;
   }
 };
+export const obtenerEstudianteDocente = async (id) => {
+  try {
+    const res = await axiosClient.get(`/docentes/estudiantes/${id}`);
+    return res.data;
+  } catch (error) {
+    Logger.error("Error obteniendo estudiante por ID", error);
+    throw error;
+  }
+};
+
+export const actualizarEstudianteDocente = async (id, payload) => {
+  const res = await axiosClient.put(`/docentes/estudiantes/${id}`, payload);
+  return res.data;
+};
+export const eliminarEstudianteDocente = async (id) => {
+  const res = await axiosClient.delete(`/docentes/estudiantes/${id}`);
+  return res.data;
+};
 
 // =======================================================
 // 4. DASHBOARD RESUMEN

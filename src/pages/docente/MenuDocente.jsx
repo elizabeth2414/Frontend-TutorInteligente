@@ -7,7 +7,6 @@ import {
   MdSchool,
   MdPeople,
   MdLibraryBooks,
-  MdAnalytics,
   MdLogout,
   MdCategory,
   MdAutoStories,
@@ -29,7 +28,6 @@ export default function MenuDocente() {
     { titulo: "Categorías", icono: <MdCategory size={24} />, ruta: "categorias" },
     { titulo: "Lecturas", icono: <MdAutoStories size={24} />, ruta: "lecturas" },
     { titulo: "Actividades", icono: <MdLibraryBooks size={24} />, ruta: "actividades" },
-    { titulo: "Estadísticas", icono: <MdAnalytics size={24} />, ruta: "estadisticas" },
   ];
 
   useEffect(() => {

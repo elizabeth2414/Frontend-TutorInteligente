@@ -15,6 +15,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -28,27 +30,19 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1. Login
       await login(form.email, form.password);
-
-      // 2. Obtener usuario con token
       const me = await getUsuarioActual();
 
-      // 3. Normalizar roles
       const roles = Array.isArray(me.roles)
         ? me.roles
         : me.rol
         ? [me.rol]
         : [];
 
-      console.log("Roles detectados:", roles);
-
-      // 4. Redirección por rol
       if (roles.includes("admin")) navigate("/admin/menu");
       else if (roles.includes("docente")) navigate("/docente/menu");
       else if (roles.includes("padre")) navigate("/padre/menu");
       else navigate("/");
-
     } catch (error) {
       console.error("Error en login:", error);
       setErrorMsg("Correo o contraseña incorrectos.");
@@ -59,18 +53,17 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 flex flex-col">
-
       <Navbar />
 
       <main className="pt-28 flex-1 flex items-center justify-center p-6">
-        <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl max-w-md w-full border border-white/40 relative overflow-hidden animate-fadeIn">
+        <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl max-w-md w-full border border-white/40 relative animate-fadeIn overflow-hidden">
 
           <h2 className="text-4xl font-extrabold text-center text-blue-700 drop-shadow-md">
-            ¡Bienvenido! 👋
+            Bienvenido
           </h2>
 
           <p className="text-center text-gray-700 mb-6">
-            Ingresa para continuar aprendiendo y mejorando tu lectura 📚✨
+            Ingresa para continuar aprendiendo y mejorando tu lectura.
           </p>
 
           {errorMsg && (
@@ -81,6 +74,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
+            {/* Email */}
             <div>
               <label className="text-gray-700 font-semibold">Correo electrónico</label>
               <input
@@ -90,23 +84,43 @@ export default function Login() {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-blue-400/50 outline-none shadow-inner"
+                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-blue-400/40 outline-none shadow-inner"
               />
             </div>
 
-            <div>
+            {/* Contraseña */}
+            <div className="relative">
               <label className="text-gray-700 font-semibold">Contraseña</label>
+
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="********"
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-purple-400/50 outline-none shadow-inner"
+                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-purple-400/40 outline-none shadow-inner pr-12"
               />
+
+              {/* BOTÓN MOSTRAR / OCULTAR CONTRASEÑA */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 bottom-3 cursor-pointer opacity-80 hover:opacity-100 transition"
+              >
+                <img
+                  src={
+                    showPassword
+                      ? "https://cdn-icons-png.flaticon.com/512/709/709606.png" // ojo cerrado
+                      : "https://cdn-icons-png.flaticon.com/512/709/709612.png" // ojo abierto
+                  }
+                  alt="Mostrar contraseña"
+                  className="w-6"
+                />
+              </button>
             </div>
 
+            {/* Botón Login */}
             <button
               type="submit"
               disabled={loading}
@@ -116,7 +130,7 @@ export default function Login() {
                   : "bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-xl"
               }`}
             >
-              {loading ? "Ingresando..." : "Iniciar Sesión 🔑"}
+              {loading ? "Ingresando..." : "Iniciar Sesión"}
             </button>
           </form>
 
