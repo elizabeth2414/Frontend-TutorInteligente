@@ -1,4 +1,3 @@
-// src/pages/padres/LecturaIAHijo.jsx
 import { useState, useEffect } from "react";
 import {
   analizarLecturaIA,
@@ -19,20 +18,19 @@ import {
 } from "react-icons/md";
 import ZonaPracticaIA from "../../components/lectura/ZonaPracticaIA";
 
-
 export default function LecturaIAHijo() {
   // ==========================
-  // Estado general (padre, hijo, lecturas)
+  // Estado general
   // ==========================
   const [hijos, setHijos] = useState([]);
   const [hijoSeleccionado, setHijoSeleccionado] = useState(null);
 
   const [lecturas, setLecturas] = useState([]);
   const [lecturaSeleccionada, setLecturaSeleccionada] = useState(null);
-  const [lectura, setLectura] = useState(null); // {id, titulo, contenido}
+  const [lectura, setLectura] = useState(null);
 
   // ==========================
-  // Estado de audio de lectura
+  // Audio lectura
   // ==========================
   const [audioArchivo, setAudioArchivo] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
@@ -48,7 +46,7 @@ export default function LecturaIAHijo() {
   const [errorMsg, setErrorMsg] = useState("");
 
   // ==========================
-  // Estado práctica de ejercicios
+  // Práctica
   // ==========================
   const [ejercicioActivo, setEjercicioActivo] = useState(null);
   const [audioPractica, setAudioPractica] = useState(null);
@@ -59,45 +57,31 @@ export default function LecturaIAHijo() {
   const [cargandoPractica, setCargandoPractica] = useState(false);
 
   // ==========================
-  // Cargar hijos del padre
+  // Cargar hijos
   // ==========================
   useEffect(() => {
-  const cargarHijos = async () => {
-    try {
-      const data = await getMisHijos();
-      // data = lista de EstudianteConCursosResponse
+    const cargarHijos = async () => {
+      try {
+        const data = await getMisHijos();
+        const lista = Array.isArray(data) ? data : data.hijos || [];
+        setHijos(
+          lista.map((item) => {
+            const est = item.estudiante || item;
+            return { id: est.id, nombre: est.nombre, apellido: est.apellido };
+          })
+        );
+      } catch {
+        setErrorMsg("No se pudieron cargar los hijos del padre.");
+      }
+    };
+    cargarHijos();
+  }, []);
 
-      const lista = Array.isArray(data) ? data : data.hijos || [];
-
-      // Lo convertimos a objetos simples {id, nombre, apellido}
-      const hijosPlano = lista.map((item) => {
-        const est = item.estudiante || item; // por si en algún momento devuelves plano
-        return {
-          id: est.id,
-          nombre: est.nombre,
-          apellido: est.apellido,
-        };
-      });
-
-      setHijos(hijosPlano);
-    } catch (error) {
-      console.error(error);
-      setErrorMsg("No se pudieron cargar los hijos del padre.");
-    }
-  };
-  cargarHijos();
-}, []);
-
-
-  // ==========================
-  // Limpiar resultados de IA
-  // ==========================
   const limpiarResultados = () => {
     setResultado(null);
     setEvaluacionId(null);
     setAudioArchivo(null);
     setAudioPreviewUrl(null);
-
     setEjercicioActivo(null);
     setAudioPractica(null);
     setPreviewPractica(null);
@@ -105,192 +89,129 @@ export default function LecturaIAHijo() {
   };
 
   // ==========================
-  // Selección de hijo
+  // Selección hijo
   // ==========================
   const manejarSeleccionHijo = async (e) => {
     const id = Number(e.target.value) || null;
-
-    setHijoSeleccionado(null);
+    limpiarResultados();
     setLecturas([]);
     setLecturaSeleccionada(null);
     setLectura(null);
-    limpiarResultados();
-    setErrorMsg("");
 
     if (!id) return;
 
-    const hijo = hijos.find((h) => h.id === id);
-    setHijoSeleccionado(hijo);
-
+    setHijoSeleccionado(hijos.find((h) => h.id === id));
     try {
       const data = await getLecturasHijo(id);
-      // adapta si tu backend envía { lecturas: [...] }
       setLecturas(Array.isArray(data) ? data : data.lecturas || []);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setErrorMsg("No se pudieron cargar las lecturas del estudiante.");
     }
   };
 
   // ==========================
-  // Selección de lectura
+  // Selección lectura
   // ==========================
   const manejarSeleccionLectura = async (e) => {
     const id = Number(e.target.value) || null;
-
-    setLecturaSeleccionada(null);
-    setLectura(null);
     limpiarResultados();
-    setErrorMsg("");
-
     if (!id) return;
 
-    const lecturaInfo = lecturas.find((l) => l.id === id);
-    setLecturaSeleccionada(lecturaInfo);
+    const info = lecturas.find((l) => l.id === id);
+    setLecturaSeleccionada(info);
 
     try {
       const data = await obtenerTextoLectura(id);
       setLectura(data);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setErrorMsg("No se pudo cargar el texto de la lectura.");
     }
   };
 
   // ==========================
-  // Escuchar lectura (audio backend)
+  // TTS lectura (más lento y amigable)
   // ==========================
- // ==========================
-// Escuchar lectura (TTS del navegador)
-// ==========================
-const manejarEscucharLectura = async () => {
-  if (!lecturaSeleccionada) {
-    setErrorMsg("Selecciona una lectura para poder escucharla.");
-    return;
-  }
-
-  setErrorMsg("");
-
-  try {
-    // 1) Asegurarnos de tener el texto de la lectura
-    let texto = lectura?.contenido;
-
-    if (!texto) {
-      // por si acaso aún no se cargó en estado
-      const data = await obtenerTextoLectura(lecturaSeleccionada.id);
-      setLectura(data);
-      texto = data.contenido;
-    }
-
-    if (!texto) {
-      setErrorMsg("La lectura no tiene contenido para leer.");
+  const manejarEscucharLectura = async () => {
+    if (!lectura?.contenido) {
+      setErrorMsg("No hay texto para leer.");
       return;
     }
 
-    // 2) Verificar soporte de TTS
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setErrorMsg("Tu navegador no soporta lectura en voz alta.");
-      return;
-    }
-
-    // 3) Leer en voz alta con la API del navegador
-    const utterance = new SpeechSynthesisUtterance(texto);
+    const utterance = new SpeechSynthesisUtterance(lectura.contenido);
     utterance.lang = "es-ES";
-    utterance.rate = 1;   // velocidad normal
-    utterance.pitch = 1;  // tono normal
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
 
-    // Cancelar cualquier lectura anterior
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-  } catch (err) {
-    console.error(err);
-    setErrorMsg("Ocurrió un error al intentar leer la lectura en voz alta.");
-  }
-};
-
+  };
 
   // ==========================
-  // Grabación principal (lectura completa)
+  // Grabación lectura (optimizada Whisper)
   // ==========================
   const iniciarGrabacion = async () => {
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setErrorMsg("Tu navegador no soporta grabación de audio.");
-        return;
-      }
-      setErrorMsg("");
+      if (mediaRecorder?.state === "recording") mediaRecorder.stop();
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
+
       const recorder = new MediaRecorder(stream);
       const chunks = [];
 
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-
+      recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: "audio/webm" });
         setAudioArchivo(blob);
-        const url = URL.createObjectURL(blob);
-        setAudioPreviewUrl(url);
+        setAudioPreviewUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((t) => t.stop());
       };
 
       recorder.start();
       setMediaRecorder(recorder);
       setGrabando(true);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setErrorMsg("No se pudo acceder al micrófono.");
     }
   };
 
   const detenerGrabacion = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setGrabando(false);
-    }
+    mediaRecorder?.stop();
+    setGrabando(false);
   };
 
- const manejarArchivo = (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) {
-    console.log("No se seleccionó ningún archivo");
-    return;
-  }
+  const manejarArchivo = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  console.log("Archivo de lectura seleccionado:", file);
-  setAudioArchivo(file);
-
-  try {
-    const url = URL.createObjectURL(file);
-    setAudioPreviewUrl(url);
-  } catch (err) {
-    console.error("Error creando URL de previsualización:", err);
-    setErrorMsg("No se pudo previsualizar el audio seleccionado.");
-  }
-
-  // Opcional: limpiar el input para poder volver a seleccionar el mismo archivo
-  e.target.value = "";
-};
-
+    setAudioArchivo(file);
+    setAudioPreviewUrl(URL.createObjectURL(file));
+    e.target.value = "";
+  };
 
   // ==========================
-  // Enviar lectura completa a la IA
+  // Enviar lectura a IA
   // ==========================
   const manejarEnviar = async () => {
     if (!hijoSeleccionado || !lecturaSeleccionada) {
-      setErrorMsg("Selecciona un estudiante y una lectura antes de analizar.");
+      setErrorMsg("Selecciona un estudiante y una lectura.");
       return;
     }
-    if (!audioArchivo) {
-      setErrorMsg("Debes grabar o subir un audio antes de enviar.");
+    if (!audioArchivo || audioArchivo.size < 2000) {
+      setErrorMsg("El audio es muy corto. Intenta grabar nuevamente.");
       return;
     }
 
-    setErrorMsg("");
     setCargando(true);
     setResultado(null);
+    setErrorMsg("");
 
     try {
       const data = await analizarLecturaIA({
@@ -299,99 +220,74 @@ const manejarEscucharLectura = async () => {
         archivoAudio: audioArchivo,
         evaluacionId,
       });
-
       setResultado(data);
-      if (data.evaluacion_id) {
-        setEvaluacionId(data.evaluacion_id);
-      }
-    } catch (error) {
-      console.error(error);
-      setErrorMsg("Ocurrió un error al analizar la lectura.");
+      if (data.evaluacion_id) setEvaluacionId(data.evaluacion_id);
+    } catch (e) {
+      setErrorMsg(
+        e.message ||
+          "No pudimos escuchar bien el audio. Intenta grabar nuevamente."
+      );
     } finally {
       setCargando(false);
     }
   };
 
   // ==========================
-  // Grabación práctica de ejercicios
+  // Grabación práctica
   // ==========================
   const iniciarGrabacionPractica = async () => {
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setErrorMsg("Tu navegador no soporta grabación de audio.");
-        return;
-      }
-      setErrorMsg("");
+      if (mediaPractica?.state === "recording") mediaPractica.stop();
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
+
       const recorder = new MediaRecorder(stream);
       const chunks = [];
 
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-
+      recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: "audio/webm" });
         setAudioPractica(blob);
-        const url = URL.createObjectURL(blob);
-        setPreviewPractica(url);
+        setPreviewPractica(URL.createObjectURL(blob));
         stream.getTracks().forEach((t) => t.stop());
       };
 
       recorder.start();
       setMediaPractica(recorder);
       setGrabandoPractica(true);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setErrorMsg("No se pudo acceder al micrófono para la práctica.");
     }
   };
 
   const detenerGrabacionPractica = () => {
-    if (mediaPractica) {
-      mediaPractica.stop();
-      setGrabandoPractica(false);
-    }
+    mediaPractica?.stop();
+    setGrabandoPractica(false);
   };
 
   const manejarArchivoPractica = (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) {
-    console.log("No se seleccionó audio de práctica");
-    return;
-  }
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  console.log("Archivo de práctica seleccionado:", file);
-  setAudioPractica(file);
-
-  try {
-    const url = URL.createObjectURL(file);
-    setPreviewPractica(url);
-  } catch (err) {
-    console.error("Error creando URL de previsualización (práctica):", err);
-    setErrorMsg("No se pudo previsualizar el audio de práctica.");
-  }
-
-  e.target.value = "";
-};
-
+    setAudioPractica(file);
+    setPreviewPractica(URL.createObjectURL(file));
+    e.target.value = "";
+  };
 
   const enviarPracticaEjercicio = async () => {
-    if (!ejercicioActivo) {
-      setErrorMsg("Selecciona un ejercicio para practicar.");
-      return;
-    }
-    if (!hijoSeleccionado) {
-      setErrorMsg("Falta el estudiante para registrar la práctica.");
-      return;
-    }
-    if (!audioPractica) {
-      setErrorMsg("Graba o sube un audio para la práctica.");
+    if (!ejercicioActivo || !audioPractica || audioPractica.size < 2000) {
+      setErrorMsg("Selecciona ejercicio y graba un audio válido.");
       return;
     }
 
-    setErrorMsg("");
     setCargandoPractica(true);
     setResultadoPractica(null);
 
@@ -402,128 +298,35 @@ const manejarEscucharLectura = async () => {
         archivoAudio: audioPractica,
       });
       setResultadoPractica(data);
-    } catch (error) {
-      console.error(error);
-      setErrorMsg(
-        "Ocurrió un error al analizar la práctica del ejercicio."
-      );
+    } catch {
+      setErrorMsg("Error al analizar la práctica.");
     } finally {
       setCargandoPractica(false);
     }
   };
 
   // ==========================
-  // Voz: análisis general
+  // Voz análisis general
   // ==========================
-  const speakAnalisisGeneral = (data) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      return;
-    }
+  useEffect(() => {
+    if (!resultado) return;
 
     const partes = [];
-
-    if (data.precision_global != null) {
-      partes.push(
-        `Tu precisión global fue de ${data.precision_global.toFixed(
-          1
-        )} por ciento.`
-      );
+    if (resultado.precision_global != null) {
+      partes.push(`Tu precisión fue de ${resultado.precision_global.toFixed(1)} por ciento.`);
+    }
+    if (resultado.retroalimentacion) {
+      partes.push(resultado.retroalimentacion);
     }
 
-    if (data.palabras_por_minuto != null) {
-      partes.push(
-        `Leíste aproximadamente ${data.palabras_por_minuto.toFixed(
-          0
-        )} palabras por minuto.`
-      );
-    }
-
-    if (data.retroalimentacion) {
-      partes.push(data.retroalimentacion);
-    }
-
-    if (data.errores && data.errores.length > 0) {
-      partes.push("Algunos de los errores que encontramos fueron:");
-      const primeros = data.errores.slice(0, 3);
-      primeros.forEach((err, idx) => {
-        const num = idx + 1;
-        if (err.tipo_error === "puntuacion") {
-          partes.push(
-            `Error ${num}: tuvimos un problema de puntuación cerca de la posición ${
-              err.posicion ?? ""
-            }.`
-          );
-        } else {
-          partes.push(
-            `Error ${num}: la palabra correcta es "${err.palabra_original}", pero se escuchó "${err.palabra_leida}".`
-          );
-        }
-      });
-    } else {
-      partes.push("No encontramos errores importantes. ¡Excelente trabajo!");
-    }
-
-    const utterance = new SpeechSynthesisUtterance(partes.join(" "));
-    utterance.lang = "es-ES";
-    utterance.rate = 1;
-    utterance.pitch = 1;
+    const u = new SpeechSynthesisUtterance(partes.join(" "));
+    u.lang = "es-ES";
+    u.rate = 0.9;
+    u.pitch = 1.1;
 
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  };
-
-  useEffect(() => {
-    if (resultado) {
-      speakAnalisisGeneral(resultado);
-    }
+    window.speechSynthesis.speak(u);
   }, [resultado]);
-
-  // ==========================
-  // Voz: práctica de ejercicios
-  // ==========================
-  const speakPractica = (data) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      return;
-    }
-
-    const partes = [];
-
-    if (data.mejora_lograda) {
-      partes.push(
-        "¡Muy bien! La inteligencia artificial detecta que has mejorado en este ejercicio."
-      );
-    } else {
-      partes.push(
-        "Todavía podemos mejorar un poco más en este ejercicio. Vamos a intentarlo de nuevo con calma."
-      );
-    }
-
-    if (data.precision_global != null) {
-      partes.push(
-        `En esta práctica tu precisión fue de ${data.precision_global.toFixed(
-          1
-        )} por ciento.`
-      );
-    }
-
-    if (data.mensaje_practica) {
-      partes.push(data.mensaje_practica);
-    }
-
-    const utterance = new SpeechSynthesisUtterance(partes.join(" "));
-    utterance.lang = "es-ES";
-    utterance.rate = 1;
-    utterance.pitch = 1;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  };
-
-  useEffect(() => {
-    if (resultadoPractica) {
-      speakPractica(resultadoPractica);
-    }
-  }, [resultadoPractica]);
 
   // ==========================
   // Render

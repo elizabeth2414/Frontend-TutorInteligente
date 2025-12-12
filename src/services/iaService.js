@@ -5,7 +5,9 @@ const BASE_URL = "/ia";
 
 export const obtenerTextoLectura = async (contenidoId) => {
   try {
-    const res = await axiosClient.get(`${BASE_URL}/lectura-texto/${contenidoId}`);
+    const res = await axiosClient.get(
+      `${BASE_URL}/lectura-texto/${contenidoId}`
+    );
     Logger.api("GET /ia/lectura-texto", res.data);
     return res.data;
   } catch (error) {
@@ -15,7 +17,6 @@ export const obtenerTextoLectura = async (contenidoId) => {
 };
 
 export const obtenerAudioLectura = (contenidoId) => {
-  // Solo si en backend sirves audio. Si no, el front puede usar TTS del navegador.
   return `${axiosClient.defaults.baseURL}${BASE_URL}/lectura-audio/${contenidoId}`;
 };
 
@@ -26,10 +27,24 @@ export const analizarLecturaIA = async ({
   evaluacionId = null,
 }) => {
   try {
+    // 🧪 Validaciones
+    if (!(archivoAudio instanceof Blob)) {
+      throw new Error("El archivo de audio no es válido.");
+    }
+    if (archivoAudio.size === 0) {
+      throw new Error("El audio está vacío.");
+    }
+
     const formData = new FormData();
     formData.append("estudiante_id", estudianteId);
     formData.append("contenido_id", contenidoId);
-    formData.append("audio", archivoAudio);
+    formData.append(
+      "audio",
+      archivoAudio,
+      archivoAudio.name || "lectura.webm"
+    );
+    formData.append("modo", "ninos"); // 🧸 modo infantil
+
     if (evaluacionId) {
       formData.append("evaluacion_id", evaluacionId);
     }
@@ -41,6 +56,7 @@ export const analizarLecturaIA = async ({
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        timeout: 120000,
       }
     );
 
@@ -48,6 +64,11 @@ export const analizarLecturaIA = async ({
     return res.data;
   } catch (error) {
     Logger.error("Error al analizar lectura IA", error);
+
+    if (error.response?.data?.detail) {
+      throw new Error(error.response.data.detail);
+    }
+
     throw error;
   }
 };
@@ -58,10 +79,18 @@ export const practicarEjercicioIA = async ({
   archivoAudio,
 }) => {
   try {
+    if (!(archivoAudio instanceof Blob) || archivoAudio.size === 0) {
+      throw new Error("Audio de práctica inválido.");
+    }
+
     const formData = new FormData();
     formData.append("estudiante_id", estudianteId);
     formData.append("ejercicio_id", ejercicioId);
-    formData.append("audio", archivoAudio);
+    formData.append(
+      "audio",
+      archivoAudio,
+      archivoAudio.name || "practica.webm"
+    );
 
     const res = await axiosClient.post(
       `${BASE_URL}/practicar-ejercicio`,
@@ -70,6 +99,7 @@ export const practicarEjercicioIA = async ({
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        timeout: 60000,
       }
     );
 
@@ -77,6 +107,11 @@ export const practicarEjercicioIA = async ({
     return res.data;
   } catch (error) {
     Logger.error("Error al practicar ejercicio IA", error);
+
+    if (error.response?.data?.detail) {
+      throw new Error(error.response.data.detail);
+    }
+
     throw error;
   }
 };
