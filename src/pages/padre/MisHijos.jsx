@@ -106,6 +106,16 @@ export default function MisHijos() {
                     >
                       📊 Ver Progreso
                     </button>
+
+                    <button
+                      onClick={() =>
+                        navigate(`/padre/menu/hijos/${estudiante.id}/practica-ia`)
+                      }
+                      className="w-full py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:scale-105 transition font-semibold"
+>
+                       🧠 Práctica con IA
+                    </button>
+
                   </div>
                 </div>
               );

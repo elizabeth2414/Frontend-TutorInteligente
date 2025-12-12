@@ -23,6 +23,12 @@ import VincularHijo from "./pages/padre/VincularHijo.jsx";
 import MisHijos from "./pages/padre/MisHijos.jsx";
 import VerLecturasHijo from "./pages/padre/VerLecturasHijo.jsx";
 import LeerLectura from "./pages/padre/LeerLectura.jsx";
+import LecturaIA from "./pages/padre/LecturaIA.jsx";
+import ProgresoHijos from "./pages/padre/ProgresoHijos.jsx";
+import DashboardPadre from "./pages/padre/DashboardPadre.jsx";
+import ActividadesHijos from "./pages/padre/ActividadesHijos.jsx";
+import ConfiguracionPadre from "./pages/padre/ConfiguracionPadre.jsx";
+
 
 // ADMIN
 import MenuAdmin from "./pages/admin/MenuAdmin.jsx";
@@ -67,15 +73,30 @@ function App() {
         />
       </Route>
 
-      <Route path="/padre/menu" element={<MenuPadre />}>
+     <Route path="/padre/menu" element={<MenuPadre />}>
+  <Route index element={<DashboardPadre />} />
 
-      <Route path="hijos/vincular" element={<VincularHijo />} />
-      <Route path="hijos" element={<MisHijos />} />
-      <Route path="/padre/menu/hijos/:hijoId/lecturas" element={<VerLecturasHijo />} />
-      <Route path="/padre/menu/hijos/:hijoId/lecturas/:lecturaId" element={<LeerLectura />} />
+  <Route path="dashboard" element={<DashboardPadre />} />
+  <Route path="hijos" element={<MisHijos />} />
+  <Route path="hijos/vincular" element={<VincularHijo />} />
 
-      
-      </Route>
+  <Route
+    path="hijos/:hijoId/lecturas"
+    element={<VerLecturasHijo />}
+  />
+  <Route
+    path="hijos/:hijoId/lecturas/:lecturaId"
+    element={<LeerLectura />}
+  />
+  <Route
+    path="hijos/:hijoId/practica-ia"
+    element={<LecturaIA />}
+  />
+
+  <Route path="actividades" element={<ActividadesHijos />} />
+  <Route path="progreso" element={<ProgresoHijos />} />
+  <Route path="configuracion" element={<ConfiguracionPadre />} />
+</Route>
 
       {/* ===================== PRIVADAS - ADMIN ===================== */}
       <Route path="/admin/menu" element={<MenuAdmin />}>

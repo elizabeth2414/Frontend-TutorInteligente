@@ -90,13 +90,16 @@ export const getHijosPadre = async () => {
   }
 };
 
-export const getLecturasHijo = async (hijoId) => {
-  try {
-    const res = await axiosClient.get(`${BASE_URL}/hijos/${hijoId}/lecturas`);
-    Logger.api(`GET /padres/hijos/${hijoId}/lecturas`, res.data);
-    return res.data;
-  } catch (error) {
-    Logger.error("❌ Error obteniendo lecturas del hijo", error);
-    throw error;
-  }
+
+
+export const getMisHijos = async () => {
+  const res = await axiosClient.get("/padres/mis-hijos");
+  Logger.api("GET /padres/mis-hijos", res.data);
+  return res.data;  // lista de hijos
+};
+
+export const getLecturasHijo = async (estudianteId) => {
+  const res = await axiosClient.get(`/padres/hijos/${estudianteId}/lecturas`);
+  Logger.api("GET /padres/hijos/:id/lecturas", res.data);
+  return res.data;  // lista de lecturas {id, titulo, ...}
 };
