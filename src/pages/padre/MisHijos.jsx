@@ -1,5 +1,3 @@
-// src/pages/padre/MisHijos.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getHijosPadre } from "../../services/padresService";
@@ -17,109 +15,103 @@ export default function MisHijos() {
     try {
       const data = await getHijosPadre();
       console.log("🚸 Hijos recibidos:", data);
-      setHijos(data);
+      setHijos(data ?? []);
     } catch (error) {
       console.error("❌ Error obteniendo hijos:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex flex-col">
-      <main className="pt-28 flex-1 p-8">
-        <h1 className="text-4xl font-extrabold text-blue-700 mb-6 text-center drop-shadow-md">
-          👧👦 Mis Hijos
-        </h1>
+    <div className="min-h-screen bg-gray-50">
+      <main className="pt-24 max-w-7xl mx-auto p-6">
 
-        <div className="flex justify-center mb-8">
+        {/* TÍTULO */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+          <h1 className="text-3xl font-bold text-blue-700">
+            Mis Hijos
+          </h1>
+
           <button
             onClick={() => navigate("/padre/menu/hijos/vincular")}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 hover:scale-105 transition"
+            className="mt-4 md:mt-0 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
           >
-            ➕ Vincular Nuevo Hijo
+            ➕ Vincular Hijo
           </button>
         </div>
 
+        {/* ESTADOS */}
         {loading ? (
-          <p className="text-center text-gray-700">Cargando hijos...</p>
-        ) : hijos.length === 0 ? (
-          <p className="text-center text-gray-600 text-xl font-medium">
-            Aún no tienes hijos vinculados.
+          <p className="text-center text-gray-600">
+            Cargando hijos...
           </p>
+        ) : hijos.length === 0 ? (
+          <div className="bg-white border rounded-xl p-10 text-center text-gray-600">
+            Aún no tienes hijos vinculados.
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
             {hijos.map((item, index) => {
               const estudiante = item.estudiante;
               const cursos = item.cursos || [];
 
+              if (!estudiante) return null;
+
               return (
                 <div
                   key={index}
-                  className="bg-white/90 p-6 rounded-3xl shadow-xl backdrop-blur-lg border border-white/30 hover:shadow-2xl transition"
+                  className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition p-6 flex flex-col"
                 >
-                  {/* Avatar */}
-                  <div className="flex justify-center mb-4">
-                    <img
-                      src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                      alt="Avatar niño"
-                      className="w-24 h-24 rounded-full border-2 border-blue-300 shadow-md"
-                    />
-                  </div>
 
-                  {/* Nombre */}
-                  <h2 className="text-2xl font-bold text-center text-blue-700">
+                  {/* NOMBRE */}
+                  <h2 className="text-xl font-bold text-gray-800 text-center">
                     {estudiante.nombre} {estudiante.apellido}
                   </h2>
 
-                  {/* Curso */}
-                  <p className="text-center text-gray-600 mt-2">
-                    {cursos.length > 0
-                      ? `Curso: ${cursos[0].nombre}`
-                      : "Curso no asignado"}
-                  </p>
+                  {/* CURSO */}
+                  <div className="flex justify-center mt-3">
+                    {cursos.length > 0 ? (
+                      <span className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 font-medium">
+                        {cursos[0].nombre}
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-500">
+                        Curso no asignado
+                      </span>
+                    )}
+                  </div>
 
-                  {/* Botones */}
+                  {/* BOTONES */}
                   <div className="mt-6 space-y-3">
                     <button
                       onClick={() =>
-                        navigate(`/padre/menu/hijos/${estudiante.id}/lecturas`)
+                        navigate(
+                          `/padre/menu/hijos/${estudiante.id}/lecturas`
+                        )
                       }
-                      className="w-full py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:scale-105 transition font-semibold"
+                      className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
                     >
                       📘 Ver Lecturas
                     </button>
 
                     <button
                       onClick={() =>
-                        navigate(`/padre/menu/hijos/${estudiante.id}/actividades`)
+                        navigate(
+                          `/padre/menu/hijos/${estudiante.id}/practica-ia`
+                        )
                       }
-                      className="w-full py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:scale-105 transition font-semibold"
+                      className="w-full py-2.5 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition"
                     >
-                      🎯 Ver Actividades
+                      🧠 Práctica de Pronunciación
                     </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/padre/menu/progreso/${estudiante.id}`)
-                      }
-                      className="w-full py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:scale-105 transition font-semibold"
-                    >
-                      📊 Ver Progreso
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/padre/menu/hijos/${estudiante.id}/practica-ia`)
-                      }
-                      className="w-full py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:scale-105 transition font-semibold"
->
-                       🧠 Práctica con IA
-                    </button>
-
                   </div>
+
                 </div>
               );
             })}
+
           </div>
         )}
       </main>

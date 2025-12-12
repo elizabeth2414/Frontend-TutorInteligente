@@ -1,40 +1,21 @@
 import { useEffect, useState } from "react";
 import {
   getResumenDashboard,
-  getProgresoMensual,
-  getRendimientoCursos,
-  getNiveles,
+  getEstudiantesDocente,
 } from "../../services/docentesService";
 
 import { getUsuarioActual } from "../../services/authService";
-import Footer from "../../components/Footer";
 
 import {
   MdPeople,
   MdLibraryBooks,
-  MdEmojiEvents,
   MdCheckCircle,
 } from "react-icons/md";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  BarChart,
-  Bar,
-  ResponsiveContainer,
-} from "recharts";
-
 export default function DashboardDocente() {
   const [resumen, setResumen] = useState(null);
-  const [progresoMensual, setProgresoMensual] = useState([]);
-  const [rendimientoCursos, setRendimientoCursos] = useState([]);
-  const [niveles, setNiveles] = useState([]);
+  const [estudiantes, setEstudiantes] = useState([]);
   const [docente, setDocente] = useState(null);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,15 +29,11 @@ export default function DashboardDocente() {
       const usuario = await getUsuarioActual();
       setDocente(usuario);
 
-      const res1 = await getResumenDashboard();
-      const res2 = await getProgresoMensual();
-      const res3 = await getRendimientoCursos();
-      const res4 = await getNiveles();
+      const res = await getResumenDashboard();
+      const ests = await getEstudiantesDocente();
 
-      setResumen(res1 ?? {});
-      setProgresoMensual(res2 ?? []);
-      setRendimientoCursos(res3 ?? []);
-      setNiveles(res4 ?? []);
+      setResumen(res ?? {});
+      setEstudiantes(ests ?? []);
     } catch (error) {
       console.error("Error cargando dashboard:", error);
     } finally {
@@ -73,22 +50,20 @@ export default function DashboardDocente() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
 
       {/* ============================ SALUDO ============================ */}
-      <div className="bg-white p-7 rounded-2xl shadow-lg mb-6 border border-gray-200">
+      <div className="bg-white p-7 rounded-2xl shadow mb-6 border">
         <h1 className="text-3xl font-bold text-blue-700">
           ¡Bienvenido, {docente?.nombre} {docente?.apellido}! 👋
         </h1>
-        <p className="text-gray-600 mt-1 text-lg">
-          Aquí puedes revisar el avance y desempeño de tus estudiantes.
+        <p className="text-gray-600 mt-1">
+          Resumen general de tus estudiantes registrados
         </p>
       </div>
 
       {/* ============================ TARJETAS ============================ */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-
-        {/* Tarjeta */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card
           color="bg-blue-100"
           icon={<MdPeople size={32} className="text-blue-700" />}
@@ -109,60 +84,47 @@ export default function DashboardDocente() {
           titulo="Actividades Completadas"
           valor={resumen.actividades_completadas}
         />
-
-
       </div>
 
-      {/* ============================ PROGRESO MENSUAL ============================ */}
-      <SectionCard titulo="Progreso Mensual 📈" color="text-blue-700">
-        {progresoMensual.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={progresoMensual}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-              <XAxis dataKey="mes" />
-              <YAxis />
-              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
-              <Line type="monotone" dataKey="progreso" stroke="#2563eb" strokeWidth={3} dot />
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <EmptyMessage />
-        )}
-      </SectionCard>
+      {/* ============================ TABLA ESTUDIANTES ============================ */}
+      <div className="bg-white p-6 rounded-2xl shadow border">
+        <h2 className="text-xl font-bold text-blue-700 mb-4">
+          Estudiantes Registrados 📋
+        </h2>
 
-      {/* ============================ RENDIMIENTO CURSOS ============================ */}
-      <SectionCard titulo="Rendimiento por Curso 🏫" color="text-purple-700">
-        {rendimientoCursos.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={rendimientoCursos}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-              <XAxis dataKey="curso" />
-              <YAxis />
-              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
-              <Bar dataKey="promedio" fill="#9333ea" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        {estudiantes.length > 0 ? (
+          <table className="w-full text-sm">
+            <thead className="border-b text-gray-600">
+              <tr>
+                <th className="py-2 text-left">Nombre</th>
+                <th className="text-left">Curso</th>
+                <th className="text-left">Nivel</th>
+                <th className="text-left">Progreso</th>
+                <th className="text-left">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {estudiantes.map((e) => (
+                <tr key={e.id} className="border-b hover:bg-gray-50">
+                  <td className="py-2 font-medium">
+                    {e.nombre} {e.apellido}
+                  </td>
+                  <td>{e.curso_nombre ?? "—"}</td>
+                  <td>{e.nivel_educativo ?? "—"}</td>
+                  <td>0%</td>
+                  <td>
+                    <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                      Activo
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
-          <EmptyMessage />
+          <p className="text-gray-500">No hay estudiantes registrados.</p>
         )}
-      </SectionCard>
-
-      {/* ============================ DISTRIBUCIÓN NIVELES ============================ */}
-      <SectionCard titulo="Distribución por Nivel 📚" color="text-green-700">
-        {niveles.length > 0 ? (
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={niveles}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-              <XAxis dataKey="nivel" />
-              <YAxis />
-              <Tooltip wrapperStyle={{ background: "white", borderRadius: "10px", padding: "10px" }} />
-              <Bar dataKey="cantidad" fill="#16a34a" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <EmptyMessage />
-        )}
-      </SectionCard>
+      </div>
 
     </div>
   );
@@ -173,7 +135,7 @@ export default function DashboardDocente() {
 ---------------------------------------- */
 function Card({ color, icon, titulo, valor }) {
   return (
-    <div className="bg-white p-5 shadow-md rounded-2xl border border-gray-200 flex gap-4 items-center hover:shadow-lg transition">
+    <div className="bg-white p-5 shadow-md rounded-2xl border flex gap-4 items-center">
       <div className={`p-3 rounded-full ${color}`}>
         {icon}
       </div>
@@ -183,23 +145,4 @@ function Card({ color, icon, titulo, valor }) {
       </div>
     </div>
   );
-}
-
-/* ----------------------------------------
-    COMPONENTE TARJETA SECCIÓN
----------------------------------------- */
-function SectionCard({ titulo, color, children }) {
-  return (
-    <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6">
-      <h2 className={`text-xl font-bold mb-4 ${color}`}>{titulo}</h2>
-      {children}
-    </div>
-  );
-}
-
-/* ----------------------------------------
-    COMPONENTE MENSAJE VACÍO
----------------------------------------- */
-function EmptyMessage() {
-  return <p className="text-gray-500">No hay datos para mostrar.</p>;
 }

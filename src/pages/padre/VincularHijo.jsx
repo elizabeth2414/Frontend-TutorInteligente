@@ -19,7 +19,6 @@ export default function VincularHijo() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✔ Corrección: formatear fecha antes de enviarla
   const normalizarPayload = () => {
     const fechaIso = form.fecha_nacimiento
       ? new Date(form.fecha_nacimiento).toISOString().split("T")[0]
@@ -40,148 +39,125 @@ export default function VincularHijo() {
 
     try {
       const payload = normalizarPayload();
+      await vincularHijo(payload);
 
-      const res = await vincularHijo(payload);
-
-      setSuccessMsg("¡Hijo vinculado correctamente! 🎉");
-
+      setSuccessMsg("Hijo vinculado correctamente.");
       setTimeout(() => navigate("/padre/menu/hijos"), 1500);
     } catch (error) {
-      console.error(error);
-
-      // ✔ Corrección: fallback seguro si no existe error.detail
       const mensaje =
         error.response?.data?.detail ||
         error.response?.data?.message ||
-        error.message ||
-        "No se pudo vincular al hijo. Verifica los datos ingresados.";
+        "No se pudo vincular al hijo. Verifica los datos.";
 
       setErrorMsg(mensaje);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 flex flex-col">
- 
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="bg-white w-full max-w-xl rounded-2xl shadow-lg border border-gray-200 p-8">
 
-      <main className="pt-28 flex-1 flex items-center justify-center p-6">
-        <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl max-w-2xl w-full border border-white/40 relative overflow-hidden">
+        {/* TÍTULO */}
+        <h2 className="text-2xl font-bold text-blue-700 mb-1 text-center">
+          Vincular Hijo
+        </h2>
+        <p className="text-gray-600 text-center mb-6">
+          Ingresa los datos registrados por el docente
+        </p>
 
-          {/* BURBUJAS DECORATIVAS */}
-          <div className="absolute -top-6 -left-6 w-20 h-20 bg-purple-300/40 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-300/40 rounded-full blur-xl animate-pulse"></div>
+        {/* MENSAJES */}
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-300 text-red-700 text-sm">
+            {errorMsg}
+          </div>
+        )}
 
-          {/* ICONO */}
-          <div className="flex justify-center mb-4 relative z-10">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/2785/2785819.png"
-              alt="Vincular hijo"
-              className="w-32 drop-shadow-2xl animate-bounce-slow"
+        {successMsg && (
+          <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-300 text-green-700 text-sm">
+            {successMsg}
+          </div>
+        )}
+
+        {/* FORMULARIO */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Nombre */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre
+            </label>
+            <input
+              type="text"
+              name="nombre"
+              required
+              value={form.nombre}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 
+                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="Ej: Juan"
             />
           </div>
 
-          {/* TÍTULO */}
-          <h2 className="text-4-3xl font-extrabold text-center text-blue-700 drop-shadow-md relative z-10">
-            Vincular a mi Hijo 👧👦
-          </h2>
+          {/* Apellido */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Apellido
+            </label>
+            <input
+              type="text"
+              name="apellido"
+              required
+              value={form.apellido}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-xl border border-gray-300
+                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="Ej: Pérez"
+            />
+          </div>
 
-          <p className="text-center text-gray-700 mb-6 relative z-10">
-            Ingresa los datos tal como fueron registrados por el docente.
-          </p>
+          {/* Fecha */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha de nacimiento
+            </label>
+            <input
+              type="date"
+              name="fecha_nacimiento"
+              required
+              value={form.fecha_nacimiento}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-xl border border-gray-300
+                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
 
-          {/* MENSAJES DE ERROR / EXITO */}
-          {errorMsg && (
-            <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg mb-4 text-center shadow-md animate-shake">
-              {errorMsg}
-            </div>
-          )}
-
-          {successMsg && (
-            <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded-lg mb-4 text-center shadow-md">
-              {successMsg}
-            </div>
-          )}
-
-          {/* FORMULARIO */}
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10"
+          {/* BOTÓN */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 rounded-xl text-white font-semibold transition
+              ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
           >
-            {/* Nombre */}
-            <div>
-              <label className="text-gray-700 font-semibold">Nombre del niño</label>
-              <input
-                required
-                type="text"
-                name="nombre"
-                value={form.nombre}
-                onChange={handleChange}
-                placeholder="Ej: Juan"
-                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 
-                           focus:ring-4 focus:ring-blue-400/50 outline-none shadow-inner"
-              />
-            </div>
+            {loading ? "Vinculando..." : "Vincular Hijo"}
+          </button>
+        </form>
 
-            {/* Apellido */}
-            <div>
-              <label className="text-gray-700 font-semibold">Apellido</label>
-              <input
-                required
-                type="text"
-                name="apellido"
-                value={form.apellido}
-                onChange={handleChange}
-                placeholder="Ej: Pérez"
-                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
-                           focus:ring-4 focus:ring-blue-400/50 outline-none shadow-inner"
-              />
-            </div>
-
-            {/* Fecha de nacimiento */}
-            <div className="md:col-span-2">
-              <label className="text-gray-700 font-semibold">Fecha de nacimiento</label>
-              <input
-                required
-                type="date"
-                name="fecha_nacimiento"
-                value={form.fecha_nacimiento}
-                onChange={handleChange}
-                className="w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
-                           focus:ring-4 focus:ring-purple-400/50 outline-none shadow-inner"
-              />
-            </div>
-
-            {/* Botón */}
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 rounded-xl text-white font-bold text-lg transition 
-                  ${
-                    loading
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-xl"
-                  }`}
-              >
-                {loading ? "Vinculando..." : "Vincular Hijo"}
-              </button>
-            </div>
-          </form>
-
-          {/* Regresar */}
-          <p className="mt-6 text-center text-gray-700 relative z-10 cursor-pointer">
-            <span
-              onClick={() => navigate("/padre/menu/hijos")}
-              className="text-blue-600 font-bold hover:underline"
-            >
-              ← Regresar a Mis Hijos
-            </span>
-          </p>
+        {/* REGRESAR */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => navigate("/padre/menu/hijos")}
+            className="text-blue-600 font-semibold hover:underline"
+          >
+            ← Volver a Mis Hijos
+          </button>
         </div>
-      </main>
-
+      </div>
     </div>
   );
 }
