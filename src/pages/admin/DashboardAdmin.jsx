@@ -7,6 +7,8 @@ import {
 } from "react-icons/md";
 
 import { obtenerDashboardAdmin } from "../../services/adminDashboardService";
+import AdminBarChart from "../../components/admin/charts/AdminBarChart";
+import AdminDonutChart from "../../components/admin/charts/AdminDonutChart";
 
 export default function DashboardAdmin() {
   const [stats, setStats] = useState({
@@ -116,7 +118,22 @@ export default function DashboardAdmin() {
               Actividad reciente del sistema
             </h2>
 
-            <div className="mt-6 h-64 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 rounded-2xl animate-pulse"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+  <div className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl">
+    <h2 className="text-xl font-bold text-blue-700 mb-4">
+      Resumen general
+    </h2>
+    <AdminBarChart stats={stats} />
+  </div>
+
+  <div className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl">
+    <h2 className="text-xl font-bold text-blue-700 mb-4">
+      Distribución del sistema
+    </h2>
+    <AdminDonutChart stats={stats} />
+  </div>
+</div>
+
           </div>
         </>
       )}

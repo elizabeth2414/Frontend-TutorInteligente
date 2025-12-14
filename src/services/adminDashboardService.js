@@ -8,4 +8,7 @@ export const obtenerDashboardAdmin = async () => {
     console.error("Error obteniendo estadísticas del dashboard:", error);
     throw error;
   }
+  
 };
+
+
