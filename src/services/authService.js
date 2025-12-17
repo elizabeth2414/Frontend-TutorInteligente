@@ -2,6 +2,8 @@
 
 import axiosClient from "../api/axiosClient";
 import Logger from "../logs/logger";
+import { Capacitor } from "@capacitor/core";
+import { Preferences } from "@capacitor/preferences";
 
 const AUTH_BASE = "/auth";
 
@@ -11,7 +13,7 @@ const AUTH_BASE = "/auth";
 export const registroUsuario = async (data) => {
   try {
     const res = await axiosClient.post(`${AUTH_BASE}/registro`, data);
-    Logger.api("POST /auth/registro", res.data);
+    Logger.info("POST /auth/registro", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error en registro de usuario", error);
@@ -20,47 +22,60 @@ export const registroUsuario = async (data) => {
 };
 
 // =====================================
-// 2. LOGIN (CORREGIDO)
+// 2. LOGIN
 // =====================================
 export const login = async (email, password) => {
   try {
-    const formData = new FormData();
-    formData.append("username", email);
-    formData.append("password", password);
+    const params = new URLSearchParams();
+    params.append("username", email);
+    params.append("password", password);
 
-    const res = await axiosClient.post(`${AUTH_BASE}/login`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const res = await axiosClient.post("/auth/login", params, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
-    // Guardamos token SOLO AQUÍ
-    localStorage.setItem("token", res.data.access_token);
+    // Guardar token según la plataforma
+    if (Capacitor.isNativePlatform()) {
+      await Preferences.set({
+        key: "token",
+        value: res.data.access_token,
+      });
+    } else {
+      localStorage.setItem("token", res.data.access_token);
+    }
 
-    Logger.api("POST /auth/login", res.data);
+    Logger.info("✅ Login exitoso", { email });
     return res.data;
   } catch (error) {
-    Logger.error("Error en login", error);
+    Logger.error("❌ Error en login", error);
     throw error;
   }
 };
 
 // =====================================
-// 3. OBTENER USUARIO ACTUAL (CORREGIDO)
+// 3. OBTENER USUARIO ACTUAL
 // =====================================
 export const getUsuarioActual = async () => {
   try {
     const res = await axiosClient.get(`${AUTH_BASE}/me`);
-    Logger.api("GET /auth/me", res.data);
 
-    // Normalizar roles: puede venir roles[] o rol
     const roles = Array.isArray(res.data.roles)
       ? res.data.roles
       : res.data.rol
       ? [res.data.rol]
       : [];
 
-    // Guardar en localStorage
-    localStorage.setItem("roles", JSON.stringify(roles));
+    // Guardar roles según la plataforma
+    if (Capacitor.isNativePlatform()) {
+      await Preferences.set({
+        key: "roles",
+        value: JSON.stringify(roles),
+      });
+    } else {
+      localStorage.setItem("roles", JSON.stringify(roles));
+    }
 
+    Logger.info("GET /auth/me", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error obteniendo usuario actual", error);
@@ -74,7 +89,7 @@ export const getUsuarioActual = async () => {
 export const cambiarPassword = async (data) => {
   try {
     const res = await axiosClient.post(`${AUTH_BASE}/cambio-password`, data);
-    Logger.api("POST /auth/cambio-password", res.data);
+    Logger.info("POST /auth/cambio-password", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error cambiando password", error);
@@ -88,7 +103,7 @@ export const cambiarPassword = async (data) => {
 export const solicitarResetPassword = async (email) => {
   try {
     const res = await axiosClient.post(`${AUTH_BASE}/reset-password`, { email });
-    Logger.api("POST /auth/reset-password", res.data);
+    Logger.info("POST /auth/reset-password", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error solicitando reset password", error);
@@ -105,7 +120,7 @@ export const confirmarResetPassword = async (token, nuevo_password) => {
       token,
       nuevo_password,
     });
-    Logger.api("POST /auth/confirm-reset-password", res.data);
+    Logger.info("POST /auth/confirm-reset-password", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error confirmando reset password", error);
@@ -116,19 +131,44 @@ export const confirmarResetPassword = async (token, nuevo_password) => {
 // =====================================
 // 7. LOGOUT
 // =====================================
-export const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("roles");
-  Logger.info("Usuario cerró sesión");
+export const logout = async () => {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      await Preferences.remove({ key: "token" });
+      await Preferences.remove({ key: "roles" });
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("roles");
+    }
+    Logger.info("✅ Logout exitoso");
+  } catch (error) {
+    Logger.error("Error en logout", error);
+    throw error;
+  }
 };
 
+// =====================================
+// 8. REGISTRO PADRE
+// =====================================
 export const registrarPadre = async (data) => {
   try {
     const res = await axiosClient.post(`/auth/registro-padre`, data);
-    Logger.api("POST /auth/registro-padre", res.data);
+    Logger.info("POST /auth/registro-padre", res.data);
     return res.data;
   } catch (error) {
     Logger.error("Error al registrar padre", error);
     throw error;
+  }
+};
+
+// =====================================
+// 9. OBTENER TOKEN (útil para axiosClient)
+// =====================================
+export const getToken = async () => {
+  if (Capacitor.isNativePlatform()) {
+    const { value } = await Preferences.get({ key: "token" });
+    return value;
+  } else {
+    return localStorage.getItem("token");
   }
 };

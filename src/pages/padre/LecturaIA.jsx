@@ -6,6 +6,7 @@ import {
   practicarEjercicioIA,
 } from "../../services/iaService";
 import { getMisHijos, getLecturasHijo } from "../../services/padresService";
+import ttsService from "../../services/ttsService"; // ✅ IMPORTAR EL SERVICIO TTS
 import {
   MdMic,
   MdStop,
@@ -86,6 +87,7 @@ export default function LecturaIAHijo() {
     setAudioPractica(null);
     setPreviewPractica(null);
     setResultadoPractica(null);
+    ttsService.stop(); // ✅ Detener cualquier reproducción
   };
 
   // ==========================
@@ -129,7 +131,7 @@ export default function LecturaIAHijo() {
   };
 
   // ==========================
-  // TTS lectura (más lento y amigable)
+  // ✅ TTS lectura CORREGIDO
   // ==========================
   const manejarEscucharLectura = async () => {
     if (!lectura?.contenido) {
@@ -137,13 +139,16 @@ export default function LecturaIAHijo() {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(lectura.contenido);
-    utterance.lang = "es-ES";
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    try {
+      await ttsService.speak(lectura.contenido, {
+        language: "es-ES",
+        rate: 0.9,
+        pitch: 1.1,
+      });
+    } catch (error) {
+      console.error("Error al reproducir audio:", error);
+      setErrorMsg("Error al reproducir el audio de la lectura.");
+    }
   };
 
   // ==========================
@@ -306,7 +311,7 @@ export default function LecturaIAHijo() {
   };
 
   // ==========================
-  // Voz análisis general
+  // ✅ Voz análisis general CORREGIDO
   // ==========================
   useEffect(() => {
     if (!resultado) return;
@@ -319,13 +324,15 @@ export default function LecturaIAHijo() {
       partes.push(resultado.retroalimentacion);
     }
 
-    const u = new SpeechSynthesisUtterance(partes.join(" "));
-    u.lang = "es-ES";
-    u.rate = 0.9;
-    u.pitch = 1.1;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
+    if (partes.length > 0) {
+      ttsService.speak(partes.join(" "), {
+        language: "es-ES",
+        rate: 0.9,
+        pitch: 1.1,
+      }).catch(error => {
+        console.error("Error al reproducir retroalimentación:", error);
+      });
+    }
   }, [resultado]);
 
   // ==========================
@@ -439,10 +446,10 @@ export default function LecturaIAHijo() {
               >
                 <option value="">Selecciona un estudiante</option>
                 {hijos.map((estudiante) => (
-  <option key={estudiante.id} value={estudiante.id}>
-    {estudiante.nombre} {estudiante.apellido}
-  </option>
-))}
+                  <option key={estudiante.id} value={estudiante.id}>
+                    {estudiante.nombre} {estudiante.apellido}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -462,10 +469,10 @@ export default function LecturaIAHijo() {
                     : "Primero selecciona un estudiante"}
                 </option>
                 {lecturas.map((lec) => (
-  <option key={lec.id} value={lec.id}>
-    {lec.titulo}
-  </option>
-))}
+                  <option key={lec.id} value={lec.id}>
+                    {lec.titulo}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -553,20 +560,16 @@ export default function LecturaIAHijo() {
               </button>
             )}
 
-            <label
-  htmlFor="archivo-lectura"
-  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 text-sm cursor-pointer hover:bg-slate-100 shadow-sm"
->
-  <MdUpload />
-  <span>Subir archivo de audio</span>
-</label>
-<input
-  id="archivo-lectura"
-  type="file"
-  accept="audio/*"
-  className="hidden"
-  onChange={manejarArchivo}
-/>
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 text-sm cursor-pointer hover:bg-slate-100 shadow-sm">
+              <MdUpload />
+              <span>Subir archivo de audio</span>
+              <input
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={manejarArchivo}
+              />
+            </label>
 
             <button
               type="button"
@@ -712,32 +715,24 @@ export default function LecturaIAHijo() {
               )}
             </div>
 
-           {resultado && (
-  <section className="space-y-5">
-    ...
-    <ZonaPracticaIA
-      ejercicios={resultado.ejercicios_recomendados}
-      ejercicioActivo={ejercicioActivo}
-      grabandoPractica={grabandoPractica}
-      previewPractica={previewPractica}
-      cargandoPractica={cargandoPractica}
-      resultadoPractica={resultadoPractica}
-      onSelectEjercicio={(ej) => {
-        setEjercicioActivo(ej);
-        setAudioPractica(null);
-        setPreviewPractica(null);
-        setResultadoPractica(null);
-      }}
-      onStartGrabacionPractica={iniciarGrabacionPractica}
-      onStopGrabacionPractica={detenerGrabacionPractica}
-      onArchivoPractica={manejarArchivoPractica}
-      onEnviarPractica={enviarPracticaEjercicio}
-    />
-  </section>
-)}
-
-
-            
+            <ZonaPracticaIA
+              ejercicios={resultado.ejercicios_recomendados}
+              ejercicioActivo={ejercicioActivo}
+              grabandoPractica={grabandoPractica}
+              previewPractica={previewPractica}
+              cargandoPractica={cargandoPractica}
+              resultadoPractica={resultadoPractica}
+              onSelectEjercicio={(ej) => {
+                setEjercicioActivo(ej);
+                setAudioPractica(null);
+                setPreviewPractica(null);
+                setResultadoPractica(null);
+              }}
+              onStartGrabacionPractica={iniciarGrabacionPractica}
+              onStopGrabacionPractica={detenerGrabacionPractica}
+              onArchivoPractica={manejarArchivoPractica}
+              onEnviarPractica={enviarPracticaEjercicio}
+            />
           </section>
         )}
       </div>

@@ -14,7 +14,6 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -30,7 +29,10 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // 1️⃣ Login
       await login(form.email, form.password);
+
+      // 2️⃣ Obtener usuario autenticado
       const me = await getUsuarioActual();
 
       const roles = Array.isArray(me.roles)
@@ -39,13 +41,26 @@ export default function Login() {
         ? [me.rol]
         : [];
 
+      // 3️⃣ Redirección por rol
       if (roles.includes("admin")) navigate("/admin/menu");
       else if (roles.includes("docente")) navigate("/docente/menu");
       else if (roles.includes("padre")) navigate("/padre/menu");
       else navigate("/");
     } catch (error) {
-      console.error("Error en login:", error);
-      setErrorMsg("Correo o contraseña incorrectos.");
+      // 🔥 FIX REAL: mostrar el error correctamente
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+
+      console.error("❌ LOGIN STATUS:", status);
+      console.error("❌ LOGIN DATA:", data);
+
+      if (status === 401) {
+        setErrorMsg("Correo o contraseña incorrectos.");
+      } else if (status === 422) {
+        setErrorMsg("Datos inválidos enviados al servidor.");
+      } else {
+        setErrorMsg("Error al conectar con el servidor.");
+      }
     } finally {
       setLoading(false);
     }
@@ -57,7 +72,6 @@ export default function Login() {
 
       <main className="pt-28 flex-1 flex items-center justify-center p-6">
         <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl max-w-md w-full border border-white/40 relative animate-fadeIn overflow-hidden">
-
           <h2 className="text-4xl font-extrabold text-center text-blue-700 drop-shadow-md">
             Bienvenido
           </h2>
@@ -73,10 +87,11 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             {/* Email */}
             <div>
-              <label className="text-gray-700 font-semibold">Correo electrónico</label>
+              <label className="text-gray-700 font-semibold">
+                Correo electrónico
+              </label>
               <input
                 type="email"
                 name="email"
@@ -102,7 +117,6 @@ export default function Login() {
                 className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-purple-400/40 outline-none shadow-inner pr-12"
               />
 
-              {/* BOTÓN MOSTRAR / OCULTAR CONTRASEÑA */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -111,8 +125,8 @@ export default function Login() {
                 <img
                   src={
                     showPassword
-                      ? "https://cdn-icons-png.flaticon.com/512/709/709606.png" // ojo cerrado
-                      : "https://cdn-icons-png.flaticon.com/512/709/709612.png" // ojo abierto
+                      ? "https://cdn-icons-png.flaticon.com/512/709/709606.png"
+                      : "https://cdn-icons-png.flaticon.com/512/709/709612.png"
                   }
                   alt="Mostrar contraseña"
                   className="w-6"
@@ -145,7 +159,6 @@ export default function Login() {
               </span>
             </p>
           </div>
-
         </div>
       </main>
 

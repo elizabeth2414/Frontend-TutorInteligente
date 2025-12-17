@@ -1,0 +1,13 @@
+{
+  "appId": "com.readsmartia.app",
+  "appName": "ReadSmartIA",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http" ,
+    "allowNavigation": [
+      "192.168.53.45"
+    ]
+  }
+}

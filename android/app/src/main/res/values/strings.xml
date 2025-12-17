@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ReadSmartIA</string>
+    <string name="title_activity_main">ReadSmartIA</string>
+    <string name="package_name">com.readsmartia.app</string>
+    <string name="custom_url_scheme">com.readsmartia.app</string>
+</resources>
