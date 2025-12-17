@@ -27,7 +27,6 @@ export default function MenuDocente() {
     { titulo: "Estudiantes", icono: <MdPeople size={24} />, ruta: "estudiantes" },
     { titulo: "Categorías", icono: <MdCategory size={24} />, ruta: "categorias" },
     { titulo: "Lecturas", icono: <MdAutoStories size={24} />, ruta: "lecturas" },
-    { titulo: "Actividades", icono: <MdLibraryBooks size={24} />, ruta: "actividades" },
   ];
 
   useEffect(() => {

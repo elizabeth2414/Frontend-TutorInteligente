@@ -14,7 +14,6 @@ export default function MisHijos() {
   const cargarHijos = async () => {
     try {
       const data = await getHijosPadre();
-      console.log("🚸 Hijos recibidos:", data);
       setHijos(data ?? []);
     } catch (error) {
       console.error("❌ Error obteniendo hijos:", error);
@@ -24,18 +23,25 @@ export default function MisHijos() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="pt-24 max-w-7xl mx-auto p-6">
+    <div className="min-h-screen bg-white">
+      <main className="pt-24 max-w-7xl mx-auto p-6 space-y-6">
 
-        {/* TÍTULO */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-          <h1 className="text-3xl font-bold text-blue-700">
-            Mis Hijos
-          </h1>
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-blue-700">
+              Mis Hijos
+            </h1>
+            <p className="text-sm text-gray-500">
+              {hijos.length > 0
+                ? `Tienes ${hijos.length} hijo${hijos.length > 1 ? "s" : ""} vinculado${hijos.length > 1 ? "s" : ""}`
+                : "Aún no tienes hijos vinculados"}
+            </p>
+          </div>
 
           <button
             onClick={() => navigate("/padre/menu/hijos/vincular")}
-            className="mt-4 md:mt-0 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+            className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
           >
             ➕ Vincular Hijo
           </button>
@@ -56,23 +62,34 @@ export default function MisHijos() {
             {hijos.map((item, index) => {
               const estudiante = item.estudiante;
               const cursos = item.cursos || [];
+              const tieneCurso = cursos.length > 0;
 
               if (!estudiante) return null;
 
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition p-6 flex flex-col"
+                  className="bg-white rounded-2xl border border-gray-200
+                             shadow-sm hover:shadow-md hover:-translate-y-0.5
+                             transition p-6 flex flex-col"
                 >
 
+                  {/* AVATAR */}
+                  <div className="flex justify-center">
+                    <div className="w-14 h-14 rounded-full bg-blue-600 text-white
+                                    flex items-center justify-center text-xl font-bold shadow">
+                      {estudiante.nombre.charAt(0)}
+                    </div>
+                  </div>
+
                   {/* NOMBRE */}
-                  <h2 className="text-xl font-bold text-gray-800 text-center">
+                  <h2 className="mt-3 text-xl font-bold text-gray-800 text-center">
                     {estudiante.nombre} {estudiante.apellido}
                   </h2>
 
                   {/* CURSO */}
-                  <div className="flex justify-center mt-3">
-                    {cursos.length > 0 ? (
+                  <div className="flex justify-center mt-2">
+                    {tieneCurso ? (
                       <span className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 font-medium">
                         {cursos[0].nombre}
                       </span>
@@ -86,26 +103,38 @@ export default function MisHijos() {
                   {/* BOTONES */}
                   <div className="mt-6 space-y-3">
                     <button
+                      disabled={!tieneCurso}
                       onClick={() =>
-                        navigate(
-                          `/padre/menu/hijos/${estudiante.id}/lecturas`
-                        )
+                        navigate(`/padre/menu/hijos/${estudiante.id}/lecturas`)
                       }
-                      className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+                      className={`w-full py-2.5 rounded-xl font-semibold transition
+                        ${
+                          tieneCurso
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        }`}
                     >
                       📘 Ver Lecturas
                     </button>
 
                     <button
                       onClick={() =>
-                        navigate(
-                          `/padre/menu/hijos/${estudiante.id}/practica-ia`
-                        )
+                        navigate(`/padre/menu/hijos/${estudiante.id}/practica-ia`)
                       }
                       className="w-full py-2.5 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition"
                     >
                       🧠 Práctica de Pronunciación
                     </button>
+
+                    <button
+                      onClick={() =>
+                      navigate(`/padre/menu/hijos/${estudiante.id}/juego`)
+                      }
+                      className="w-full py-2.5 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition"
+                      >
+                      🎮 Mi aventura
+                    </button>
+
                   </div>
 
                 </div>

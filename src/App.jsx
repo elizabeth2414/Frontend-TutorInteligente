@@ -28,7 +28,7 @@ import ProgresoHijos from "./pages/padre/ProgresoHijos.jsx";
 import DashboardPadre from "./pages/padre/DashboardPadre.jsx";
 import ActividadesHijos from "./pages/padre/ActividadesHijos.jsx";
 import ConfiguracionPadre from "./pages/padre/ConfiguracionPadre.jsx";
-
+import InicioJuegoHijo from "./pages/hijo/InicioJuegoHijo.jsx";
 
 // ADMIN
 import MenuAdmin from "./pages/admin/MenuAdmin.jsx";
@@ -79,7 +79,7 @@ function App() {
   <Route path="dashboard" element={<DashboardPadre />} />
   <Route path="hijos" element={<MisHijos />} />
   <Route path="hijos/vincular" element={<VincularHijo />} />
-
+  <Route path="hijos/:hijoId/juego" element={<InicioJuegoHijo />} />
   <Route
     path="hijos/:hijoId/lecturas"
     element={<VerLecturasHijo />}

@@ -113,17 +113,17 @@ export default function Navbar() {
           </button>
 
           <button onClick={() => navigate("/mision")} className="flex items-center gap-3 text-green-700 text-xl">
-            <img src="https://cdn-icons-png.flaticon.com/512/3208/3208753.png" className="w-6" />
+            
             Misión
           </button>
 
           <button onClick={() => navigate("/objetivo")} className="flex items-center gap-3 text-pink-700 text-xl">
-            <img src="https://cdn-icons-png.flaticon.com/512/9131/9131546.png" className="w-6" />
+            
             Objetivo
           </button>
 
           <button onClick={() => navigate("/contacto")} className="flex items-center gap-3 text-blue-600 text-xl">
-            <img src="https://cdn-icons-png.flaticon.com/512/939/939916.png" className="w-6" />
+            
             Contacto
           </button>
 
