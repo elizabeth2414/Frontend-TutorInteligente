@@ -348,13 +348,9 @@ export default function LecturaIAHijo() {
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500 text-white shadow-md">
                 <MdAutoGraph size={22} />
               </span>
-              TutorIA Kids – Lectura con IA
+              ReadSmartIA – Lectura con IA
             </h1>
-            <p className="mt-1 text-sm md:text-base text-slate-600 max-w-2xl">
-              El padre inicia sesión, elige al estudiante y una lectura, y la IA
-              guía la práctica de pronunciación con retroalimentación visual y
-              auditiva.
-            </p>
+           
           </div>
 
           {resultado && (
@@ -400,7 +396,7 @@ export default function LecturaIAHijo() {
                 Elegir estudiante y lectura
               </p>
               <p className="text-xs text-slate-600">
-                Selecciona al hijo y la lectura que va a practicar.
+                Selecciona la lectura que va a practicar.
               </p>
             </div>
           </div>
@@ -426,7 +422,7 @@ export default function LecturaIAHijo() {
                 Analizar y practicar
               </p>
               <p className="text-xs text-slate-600">
-                La IA detecta errores y genera ejercicios para reforzar.
+                La IA detectara tus errores y genera ejercicios para reforzar.
               </p>
             </div>
           </div>
@@ -737,5 +733,6 @@ export default function LecturaIAHijo() {
         )}
       </div>
     </div>
+ 
   );
 }
