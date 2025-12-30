@@ -17,14 +17,63 @@ export default function ModalCrearLectura({
   });
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const [errors, setErrors] = useState({
+    titulo: "",
+    contenido: "",
+    edad_recomendada: "",
+  });
+
+  // Validación en tiempo real
+  const validateField = (name, value) => {
+    let msg = "";
+
+    if (name === "titulo") {
+      if (value.trim().length > 0 && value.trim().length < 3) {
+        msg = "El título debe tener al menos 3 caracteres.";
+      } else if (value.length > 100) {
+        msg = "El título no puede exceder 100 caracteres.";
+      }
+    }
+
+    if (name === "contenido") {
+      if (value.trim().length > 0 && value.trim().length < 10) {
+        msg = "El contenido debe tener al menos 10 caracteres.";
+      }
+    }
+
+    if (name === "edad_recomendada") {
+      if (value && (value < 5 || value > 15)) {
+        msg = "La edad debe estar entre 5 y 15 años.";
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+    validateField(name, value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    // Validar campos obligatorios
+    if (!form.titulo || !form.contenido || !form.categoria_id || !form.curso_id) {
+      setError("Por favor completa todos los campos obligatorios.");
+      return;
+    }
+
+    // Validar errores existentes
+    if (errors.titulo || errors.contenido || errors.edad_recomendada) {
+      setError("Por favor corrige los errores antes de guardar.");
+      return;
+    }
+
     try {
       setSaving(true);
       await crearLectura(form);
@@ -32,6 +81,7 @@ export default function ModalCrearLectura({
       onClose();
     } catch (err) {
       console.error("Error creando lectura", err);
+      setError("Error al crear la lectura. Inténtalo nuevamente.");
     } finally {
       setSaving(false);
     }
@@ -54,24 +104,48 @@ export default function ModalCrearLectura({
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <input
-            name="titulo"
-            placeholder="Título de la lectura"
-            value={form.titulo}
-            onChange={handleChange}
-            required
-            className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400"
-          />
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
-          <textarea
-            name="contenido"
-            placeholder="Contenido de la lectura"
-            value={form.contenido}
-            onChange={handleChange}
-            rows={4}
-            required
-            className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400"
-          />
+          <div>
+            <input
+              name="titulo"
+              placeholder="Título de la lectura *"
+              value={form.titulo}
+              onChange={handleChange}
+              required
+              className={`w-full border rounded-xl px-4 py-2 focus:ring-2 outline-none ${
+                errors.titulo
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-400"
+              }`}
+            />
+            {errors.titulo && (
+              <p className="text-red-600 text-xs mt-1 ml-1">{errors.titulo}</p>
+            )}
+          </div>
+
+          <div>
+            <textarea
+              name="contenido"
+              placeholder="Contenido de la lectura *"
+              value={form.contenido}
+              onChange={handleChange}
+              rows={4}
+              required
+              className={`w-full border rounded-xl px-4 py-2 focus:ring-2 outline-none resize-none ${
+                errors.contenido
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-400"
+              }`}
+            />
+            {errors.contenido && (
+              <p className="text-red-600 text-xs mt-1 ml-1">{errors.contenido}</p>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <select
@@ -101,14 +175,25 @@ export default function ModalCrearLectura({
             </select>
           </div>
 
-          <input
-            name="edad_recomendada"
-            type="number"
-            placeholder="Edad recomendada"
-            value={form.edad_recomendada}
-            onChange={handleChange}
-            className="w-full border rounded-xl px-4 py-2"
-          />
+          <div>
+            <input
+              name="edad_recomendada"
+              type="number"
+              placeholder="Edad recomendada (5-15 años)"
+              value={form.edad_recomendada}
+              onChange={handleChange}
+              min="5"
+              max="15"
+              className={`w-full border rounded-xl px-4 py-2 focus:ring-2 outline-none ${
+                errors.edad_recomendada
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-400"
+              }`}
+            />
+            {errors.edad_recomendada && (
+              <p className="text-red-600 text-xs mt-1 ml-1">{errors.edad_recomendada}</p>
+            )}
+          </div>
 
           {/* FOOTER */}
           <div className="flex justify-end gap-3 pt-4">

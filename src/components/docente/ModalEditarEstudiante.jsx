@@ -20,6 +20,12 @@ export default function ModalEditarEstudiante({
     necesidades_especiales: "",
   });
 
+  const [errors, setErrors] = useState({
+    nombre: "",
+    apellido: "",
+    fecha_nacimiento: "",
+  });
+
   // Cargar datos del estudiante al abrir modal
   useEffect(() => {
     if (estudiante) {
@@ -31,23 +37,66 @@ export default function ModalEditarEstudiante({
         curso_id: estudiante.curso_id || "",
         necesidades_especiales: estudiante.necesidades_especiales || "",
       });
+      setErrors({ nombre: "", apellido: "", fecha_nacimiento: "" });
     }
   }, [estudiante]);
 
+  // Validación en tiempo real
+  const validateField = (name, value) => {
+    let msg = "";
+    const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/;
+
+    if (name === "nombre") {
+      if (value.trim().length > 0 && value.trim().length < 2) {
+        msg = "Debe tener al menos 2 caracteres.";
+      } else if (value && !soloLetras.test(value)) {
+        msg = "Solo se permiten letras.";
+      }
+    }
+
+    if (name === "apellido") {
+      if (value.trim().length > 0 && value.trim().length < 2) {
+        msg = "Debe tener al menos 2 caracteres.";
+      } else if (value && !soloLetras.test(value)) {
+        msg = "Solo se permiten letras.";
+      }
+    }
+
+    if (name === "fecha_nacimiento") {
+      if (value) {
+        const fecha = new Date(value);
+        const hoy = new Date();
+        const edad = Math.floor((hoy - fecha) / (365.25 * 24 * 60 * 60 * 1000));
+        if (edad < 5 || edad > 15) {
+          msg = "La edad debe estar entre 5 y 15 años.";
+        }
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validateField(name, value);
   };
 
   const actualizar = async (e) => {
     e.preventDefault();
     setError("");
-    setSaving(true);
 
     if (!form.nombre || !form.apellido || !form.fecha_nacimiento || !form.curso_id) {
       setError("Debe completar todos los campos obligatorios (*).");
-      setSaving(false);
       return;
     }
+
+    if (errors.nombre || errors.apellido || errors.fecha_nacimiento) {
+      setError("Por favor corrige los errores antes de guardar.");
+      return;
+    }
+
+    setSaving(true);
 
     try {
       await actualizarEstudianteDocente(estudiante.id, {
@@ -94,8 +143,15 @@ export default function ModalEditarEstudiante({
               name="nombre"
               value={form.nombre}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 rounded-xl border border-blue-200 bg-white/60 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
+              className={`w-full px-3 py-2 mt-1 rounded-xl border bg-white/60 shadow-sm focus:ring-2 outline-none ${
+                errors.nombre
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-blue-200 focus:ring-blue-300"
+              }`}
             />
+            {errors.nombre && (
+              <p className="text-red-600 text-xs mt-1">{errors.nombre}</p>
+            )}
           </div>
 
           {/* Apellido */}
@@ -105,8 +161,15 @@ export default function ModalEditarEstudiante({
               name="apellido"
               value={form.apellido}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 rounded-xl border border-blue-200 bg-white/60 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
+              className={`w-full px-3 py-2 mt-1 rounded-xl border bg-white/60 shadow-sm focus:ring-2 outline-none ${
+                errors.apellido
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-blue-200 focus:ring-blue-300"
+              }`}
             />
+            {errors.apellido && (
+              <p className="text-red-600 text-xs mt-1">{errors.apellido}</p>
+            )}
           </div>
 
           {/* Fecha nacimiento */}
@@ -117,8 +180,15 @@ export default function ModalEditarEstudiante({
               name="fecha_nacimiento"
               value={form.fecha_nacimiento}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 rounded-xl border border-blue-200 bg-white/60 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
+              className={`w-full px-3 py-2 mt-1 rounded-xl border bg-white/60 shadow-sm focus:ring-2 outline-none ${
+                errors.fecha_nacimiento
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-blue-200 focus:ring-blue-300"
+              }`}
             />
+            {errors.fecha_nacimiento && (
+              <p className="text-red-600 text-xs mt-1">{errors.fecha_nacimiento}</p>
+            )}
           </div>
 
           {/* Nivel */}

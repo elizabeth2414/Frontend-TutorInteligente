@@ -8,10 +8,31 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
   const [descripcion, setDescripcion] = useState("");
 
   const [error, setError] = useState("");
+  const [errorNombre, setErrorNombre] = useState("");
+
+  // Validación en tiempo real
+  const handleNombreChange = (value) => {
+    setNombre(value);
+
+    if (value.trim().length > 0 && value.trim().length < 3) {
+      setErrorNombre("El nombre debe tener al menos 3 caracteres.");
+    } else if (value.length > 50) {
+      setErrorNombre("El nombre no puede exceder 50 caracteres.");
+    } else {
+      setErrorNombre("");
+    }
+  };
 
   const crear = async () => {
+    setError("");
+
     if (!nombre.trim()) {
       setError("El nombre del curso es obligatorio.");
+      return;
+    }
+
+    if (errorNombre) {
+      setError("Por favor corrige los errores antes de guardar.");
       return;
     }
 
@@ -69,14 +90,22 @@ export default function ModalCrearCurso({ onClose, onCreated }) {
               Nombre del Curso <span className="text-red-500">*</span>
             </label>
             <input
-              className="
-                w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70
-                focus:ring-4 focus:ring-blue-300 outline-none shadow-inner
-              "
+              className={`
+                w-full mt-1 px-4 py-3 rounded-xl border bg-white/70
+                focus:ring-4 outline-none shadow-inner
+                ${
+                  errorNombre
+                    ? "border-red-400 focus:ring-red-300"
+                    : "border-gray-300 focus:ring-blue-300"
+                }
+              `}
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={(e) => handleNombreChange(e.target.value)}
               placeholder="Ej: Lectura Inicial"
             />
+            {errorNombre && (
+              <p className="text-red-600 text-sm mt-1">{errorNombre}</p>
+            )}
           </div>
 
           {/* Nivel */}
