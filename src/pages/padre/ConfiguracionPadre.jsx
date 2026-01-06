@@ -1,11 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MdNotificationsActive,
   MdPerson,
   MdSecurity,
+  MdEdit,
+  MdChevronRight,
 } from "react-icons/md";
 
 export default function ConfiguracionPadre() {
+  const navigate = useNavigate();
+
   // ==========================
   // Estados de configuración (UI)
   // ==========================
@@ -34,6 +39,48 @@ export default function ConfiguracionPadre() {
             </p>
           </div>
         </div>
+
+        {/* CUENTA - Editar Perfil */}
+        <section className="bg-white/90 backdrop-blur-sm rounded-2xl
+                            border border-purple-100 shadow-sm p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-100
+                            text-purple-600 flex items-center justify-center">
+              <MdPerson size={22} />
+            </div>
+            <h2 className="text-lg font-semibold text-slate-800">
+              Mi Cuenta
+            </h2>
+          </div>
+
+          <button
+            onClick={() => navigate("/padre/menu/editar-cuenta")}
+            className="w-full flex items-center justify-between p-4 
+                       rounded-xl border-2 border-slate-200 
+                       hover:border-purple-400 hover:bg-purple-50
+                       transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-100 
+                              text-purple-600 flex items-center justify-center
+                              group-hover:bg-purple-200 transition">
+                <MdEdit size={20} />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-slate-800">
+                  Editar Perfil
+                </p>
+                <p className="text-sm text-slate-500">
+                  Actualiza tu información personal y contraseña
+                </p>
+              </div>
+            </div>
+            <MdChevronRight 
+              size={24} 
+              className="text-slate-400 group-hover:text-purple-600 transition" 
+            />
+          </button>
+        </section>
 
         {/* NOTIFICACIONES */}
         <section className="bg-white/90 backdrop-blur-sm rounded-2xl
@@ -96,13 +143,6 @@ export default function ConfiguracionPadre() {
             enabled={permitirAudio}
             setEnabled={setPermitirAudio}
           />
-        </section>
-
-        {/* CUENTA (informativo por ahora) */}
-        <section className="bg-white/80 border border-slate-100 rounded-2xl
-                            p-5 text-sm text-slate-600 shadow-sm flex items-center gap-3">
-          <MdPerson className="text-slate-400" size={22} />
-          Las opciones de cuenta estarán disponibles próximamente.
         </section>
 
       </main>

@@ -29,11 +29,11 @@ export default function MenuAdmin() {
       icono: <MdSchool size={24} />,
       ruta: "/admin/menu/docentes",
     },
-    {
-      titulo: "Estudiantes",
-      icono: <MdPeople size={24} />,
-      ruta: "/admin/menu/estudiantes",
-    },
+    //{
+      //titulo: "Estudiantes",
+      //icono: <MdPeople size={24} />,
+      //ruta: "/admin/menu/estudiantes",
+    //},
   ];
 
   useEffect(() => {
