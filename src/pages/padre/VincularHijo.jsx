@@ -15,8 +15,51 @@ export default function VincularHijo() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const [errors, setErrors] = useState({
+    nombre: "",
+    apellido: "",
+    fecha_nacimiento: "",
+  });
+
+  // Validación en tiempo real
+  const validateField = (name, value) => {
+    let msg = "";
+    const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/;
+
+    if (name === "nombre") {
+      if (value.trim().length > 0 && value.trim().length < 2) {
+        msg = "Debe tener al menos 2 caracteres.";
+      } else if (value && !soloLetras.test(value)) {
+        msg = "Solo se permiten letras.";
+      }
+    }
+
+    if (name === "apellido") {
+      if (value.trim().length > 0 && value.trim().length < 2) {
+        msg = "Debe tener al menos 2 caracteres.";
+      } else if (value && !soloLetras.test(value)) {
+        msg = "Solo se permiten letras.";
+      }
+    }
+
+    if (name === "fecha_nacimiento") {
+      if (value) {
+        const fecha = new Date(value);
+        const hoy = new Date();
+        const edad = Math.floor((hoy - fecha) / (365.25 * 24 * 60 * 60 * 1000));
+        if (edad < 5 || edad > 15) {
+          msg = "La edad debe estar entre 5 y 15 años.";
+        }
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validateField(name, value);
   };
 
   const normalizarPayload = () => {
@@ -34,9 +77,22 @@ export default function VincularHijo() {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
+
+    // Validar campos vacíos
+    if (!form.nombre || !form.apellido || !form.fecha_nacimiento) {
+      setErrorMsg("Por favor completa todos los campos.");
+      return;
+    }
+
+    // Validar errores existentes
+    if (errors.nombre || errors.apellido || errors.fecha_nacimiento) {
+      setErrorMsg("Por favor corrige los errores antes de continuar.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const payload = normalizarPayload();
@@ -95,10 +151,16 @@ export default function VincularHijo() {
               required
               value={form.nombre}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`w-full px-4 py-2 rounded-xl border focus:ring-2 focus:outline-none ${
+                errors.nombre
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
               placeholder="Ej: Juan"
             />
+            {errors.nombre && (
+              <p className="text-red-600 text-xs mt-1">{errors.nombre}</p>
+            )}
           </div>
 
           {/* Apellido */}
@@ -112,10 +174,16 @@ export default function VincularHijo() {
               required
               value={form.apellido}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-xl border border-gray-300
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`w-full px-4 py-2 rounded-xl border focus:ring-2 focus:outline-none ${
+                errors.apellido
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
               placeholder="Ej: Pérez"
             />
+            {errors.apellido && (
+              <p className="text-red-600 text-xs mt-1">{errors.apellido}</p>
+            )}
           </div>
 
           {/* Fecha */}
@@ -129,9 +197,15 @@ export default function VincularHijo() {
               required
               value={form.fecha_nacimiento}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-xl border border-gray-300
-                         focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`w-full px-4 py-2 rounded-xl border focus:ring-2 focus:outline-none ${
+                errors.fecha_nacimiento
+                  ? "border-red-400 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
             />
+            {errors.fecha_nacimiento && (
+              <p className="text-red-600 text-xs mt-1">{errors.fecha_nacimiento}</p>
+            )}
           </div>
 
           {/* BOTÓN */}

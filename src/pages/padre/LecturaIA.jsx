@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   analizarLecturaIA,
   obtenerTextoLectura,
@@ -6,7 +7,7 @@ import {
   practicarEjercicioIA,
 } from "../../services/iaService";
 import { getMisHijos, getLecturasHijo } from "../../services/padresService";
-import ttsService from "../../services/ttsService"; // ✅ IMPORTAR EL SERVICIO TTS
+import ttsService from "../../services/ttsService";
 import {
   MdMic,
   MdStop,
@@ -20,35 +21,28 @@ import {
 import ZonaPracticaIA from "../../components/lectura/ZonaPracticaIA";
 
 export default function LecturaIAHijo() {
-  // ==========================
+  const location = useLocation();
+
   // Estado general
-  // ==========================
   const [hijos, setHijos] = useState([]);
   const [hijoSeleccionado, setHijoSeleccionado] = useState(null);
-
   const [lecturas, setLecturas] = useState([]);
   const [lecturaSeleccionada, setLecturaSeleccionada] = useState(null);
   const [lectura, setLectura] = useState(null);
 
-  // ==========================
   // Audio lectura
-  // ==========================
   const [audioArchivo, setAudioArchivo] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
   const [grabando, setGrabando] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
-  // ==========================
   // Resultado IA lectura
-  // ==========================
   const [resultado, setResultado] = useState(null);
   const [evaluacionId, setEvaluacionId] = useState(null);
   const [cargando, setCargando] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ==========================
   // Práctica
-  // ==========================
   const [ejercicioActivo, setEjercicioActivo] = useState(null);
   const [audioPractica, setAudioPractica] = useState(null);
   const [previewPractica, setPreviewPractica] = useState(null);
@@ -57,24 +51,68 @@ export default function LecturaIAHijo() {
   const [resultadoPractica, setResultadoPractica] = useState(null);
   const [cargandoPractica, setCargandoPractica] = useState(false);
 
-  // ==========================
-  // Cargar hijos
-  // ==========================
+  // 🔥 CARGAR DATOS INICIALES
   useEffect(() => {
     const cargarHijos = async () => {
       try {
         const data = await getMisHijos();
         const lista = Array.isArray(data) ? data : data.hijos || [];
-        setHijos(
-          lista.map((item) => {
-            const est = item.estudiante || item;
-            return { id: est.id, nombre: est.nombre, apellido: est.apellido };
-          })
-        );
-      } catch {
+        
+        const hijosFormateados = lista.map((item) => {
+          const est = item.estudiante || item;
+          return { 
+            id: est.id, 
+            nombre: est.nombre || "", 
+            apellido: est.apellido || "" 
+          };
+        });
+        
+        setHijos(hijosFormateados);
+
+        // 🔥 AUTO-CARGAR SI VIENE DESDE OTRA VISTA
+        const stateData = location.state;
+        
+        if (stateData?.estudianteId && stateData?.lectura) {
+          const hijoEncontrado = hijosFormateados.find(
+            (h) => h.id === Number(stateData.estudianteId)
+          );
+          
+          if (hijoEncontrado) {
+            setHijoSeleccionado(hijoEncontrado);
+            
+            try {
+              const lecturasData = await getLecturasHijo(stateData.estudianteId);
+              const lecturasLista = Array.isArray(lecturasData) 
+                ? lecturasData 
+                : lecturasData.lecturas || [];
+              
+              setLecturas(lecturasLista);
+              
+              // Auto-seleccionar lectura
+              const lecturaInfo = stateData.lectura;
+              setLecturaSeleccionada(lecturaInfo);
+              
+              // Cargar contenido completo
+              setLectura({
+                id: lecturaInfo.id,
+                titulo: lecturaInfo.titulo,
+                contenido: lecturaInfo.contenido,
+                nivel_dificultad: lecturaInfo.nivel_dificultad,
+                edad_recomendada: lecturaInfo.edad_recomendada
+              });
+              
+            } catch (error) {
+              console.error("Error cargando lecturas:", error);
+              setErrorMsg("No se pudieron cargar las lecturas del estudiante.");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error cargando hijos:", error);
         setErrorMsg("No se pudieron cargar los hijos del padre.");
       }
     };
+    
     cargarHijos();
   }, []);
 

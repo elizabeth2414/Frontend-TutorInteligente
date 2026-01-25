@@ -5,7 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 
 // Base URL del backend
-const BASE_URL = "http://192.168.53.45:8000/api";
+const BASE_URL = "http://192.168.54.2:8000/api";
 
 const axiosClient = axios.create({
   baseURL: BASE_URL,

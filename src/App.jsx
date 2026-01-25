@@ -29,6 +29,10 @@ import DashboardPadre from "./pages/padre/DashboardPadre.jsx";
 import ActividadesHijos from "./pages/padre/ActividadesHijos.jsx";
 import ConfiguracionPadre from "./pages/padre/ConfiguracionPadre.jsx";
 import InicioJuegoHijo from "./pages/hijo/InicioJuegoHijo.jsx";
+import ActividadesLectura from "./pages/docente/ActividadesLectura.jsx";
+import ActividadDetalle from "./components/actividades/ActividadDetalle.jsx";
+import ResolverActividad from "./pages/padre/ResolverActividad.jsx";
+import EditarCuentaPadre from "./pages/padre/Editarcuentapadre.jsx";
 
 // ADMIN
 import MenuAdmin from "./pages/admin/MenuAdmin.jsx";
@@ -59,6 +63,8 @@ function App() {
         <Route path="estudiantes" element={<EstudiantesDocente />} />
         <Route path="categorias" element={<CategoriasDocente />} />
         <Route path="lecturas" element={<LecturasDocente />} />
+        <Route path="/docente/menu/lecturas/:lecturaId/actividades" element={<ActividadesLectura />} />
+        <Route path="/docente/menu/actividades/:actividadId/detalle" element={<ActividadDetalle />} />
 
         {/* LISTAR ACTIVIDADES GENERADAS POR IA */}
         <Route
@@ -80,6 +86,10 @@ function App() {
   <Route path="hijos" element={<MisHijos />} />
   <Route path="hijos/vincular" element={<VincularHijo />} />
   <Route path="hijos/:hijoId/juego" element={<InicioJuegoHijo />} />
+  <Route 
+  path="/padre/menu/hijos/:hijoId/lecturas/:lecturaId/actividades/:actividadId" 
+  element={<ResolverActividad />} 
+  />
   <Route
     path="hijos/:hijoId/lecturas"
     element={<VerLecturasHijo />}
@@ -96,6 +106,7 @@ function App() {
   <Route path="actividades" element={<ActividadesHijos />} />
   <Route path="progreso" element={<ProgresoHijos />} />
   <Route path="configuracion" element={<ConfiguracionPadre />} />
+  <Route path="editar-cuenta" element={<EditarCuentaPadre />} />
 </Route>
 
       {/* ===================== PRIVADAS - ADMIN ===================== */}

@@ -19,6 +19,11 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [showSplash, setShowSplash] = useState(isMobile);
 
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
   // 🎬 Splash screen solo en primera carga móvil
   useEffect(() => {
     if (isMobile) {
@@ -29,16 +34,52 @@ export default function Login() {
     }
   }, [isMobile]);
 
+  // Validación de campos en tiempo real
+  const validateField = (name, value) => {
+    let msg = "";
+
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value.trim()) {
+        msg = "";
+      } else if (!emailRegex.test(value)) {
+        msg = "Correo electrónico no válido.";
+      }
+    }
+
+    if (name === "password") {
+      if (value && value.length < 6 && value.length > 0) {
+        msg = "La contraseña debe tener mínimo 6 caracteres.";
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: msg }));
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    validateField(name, value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
+
+    // Validar antes de enviar
+    if (!form.email.trim() || !form.password.trim()) {
+      setErrorMsg("Por favor completa todos los campos.");
+      return;
+    }
+
+    if (errors.email || errors.password) {
+      setErrorMsg("Por favor corrige los errores antes de continuar.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -188,7 +229,11 @@ export default function Login() {
                     onChange={handleChange}
                     required
                     autoComplete="email"
-                    className="w-full px-4 py-3.5 pl-11 rounded-2xl border-2 border-gray-200 bg-gray-50 focus:border-blue-400 focus:bg-white outline-none transition-all text-base"
+                    className={`w-full px-4 py-3.5 pl-11 rounded-2xl border-2 bg-gray-50 focus:bg-white outline-none transition-all text-base ${
+                      errors.email
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-gray-200 focus:border-blue-400"
+                    }`}
                   />
                   <svg
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -204,6 +249,9 @@ export default function Login() {
                     />
                   </svg>
                 </div>
+                {errors.email && (
+                  <p className="text-red-600 text-xs mt-1 ml-1">{errors.email}</p>
+                )}
               </div>
 
               {/* Contraseña */}
@@ -220,7 +268,11 @@ export default function Login() {
                     onChange={handleChange}
                     required
                     autoComplete="current-password"
-                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-200 bg-gray-50 focus:border-purple-400 focus:bg-white outline-none transition-all text-base pr-11"
+                    className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-gray-50 focus:bg-white outline-none transition-all text-base pr-11 ${
+                      errors.password
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-gray-200 focus:border-purple-400"
+                    }`}
                   />
                   <button
                     type="button"
@@ -239,6 +291,9 @@ export default function Login() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-red-600 text-xs mt-1 ml-1">{errors.password}</p>
+                )}
               </div>
 
               {/* Botón Login - Colores suaves */}
@@ -337,8 +392,15 @@ export default function Login() {
                 onChange={handleChange}
                 required
                 autoComplete="email"
-                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-blue-400/40 outline-none shadow-inner"
+                className={`w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 focus:ring-4 outline-none shadow-inner ${
+                  errors.email
+                    ? "border-red-400 focus:ring-red-400/40"
+                    : "border-gray-300 focus:ring-blue-400/40"
+                }`}
               />
+              {errors.email && (
+                <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -351,7 +413,11 @@ export default function Login() {
                 onChange={handleChange}
                 required
                 autoComplete="current-password"
-                className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-300 bg-white/70 focus:ring-4 focus:ring-purple-400/40 outline-none shadow-inner pr-12"
+                className={`w-full mt-1 px-4 py-3 rounded-xl border bg-white/70 focus:ring-4 outline-none shadow-inner pr-12 ${
+                  errors.password
+                    ? "border-red-400 focus:ring-red-400/40"
+                    : "border-gray-300 focus:ring-purple-400/40"
+                }`}
               />
               <button
                 type="button"
@@ -368,6 +434,9 @@ export default function Login() {
                   className="w-6"
                 />
               </button>
+              {errors.password && (
+                <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             <button

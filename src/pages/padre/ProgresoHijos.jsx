@@ -31,18 +31,15 @@ export default function ProgresoHijos() {
         const data = await getMisHijos();
         const lista = Array.isArray(data) ? data : [];
 
-        // Extraemos SOLO el estudiante
-        const estudiantes = lista
-          .map((item) => item.estudiante)
-          .filter(Boolean);
-
-        setHijos(estudiantes);
+        // ✅ Los datos YA son estudiantes directamente
+        // El endpoint /padres/mis-hijos retorna la lista de estudiantes
+        setHijos(lista);
         
-        console.log("Hijos cargados:", estudiantes);
+        console.log("Hijos cargados:", lista);
         
         // Si hay hijos, seleccionar el primero automáticamente
-        if (estudiantes.length > 0) {
-          await cargarProgreso(estudiantes[0].id);
+        if (lista.length > 0) {
+          await cargarProgreso(lista[0].id);
         }
       } catch (err) {
         console.error("Error al cargar hijos:", err);
